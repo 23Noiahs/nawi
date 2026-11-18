@@ -3,1078 +3,887 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NAWI 4bk – Physik interaktiv lernen</title>
+<title>NAWI · Physik · Interaktive Lernseite</title>
 <style>
   :root{
-    --bg:#0d1117; --card:#161b27; --card2:#1d2433; --text:#e6edf3;
-    --muted:#9aa7b8; --accent:#4da3ff; --accent2:#ffb347; --good:#42d392; --bad:#ff6b6b;
-    --pos:#ff6b6b; --neg:#4da3ff;
+    --ink:#111; --mid:#666; --faint:#bbb; --line:#e4e4e4; --bg:#fff; --panel:#fafafa;
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); line-height:1.65;}
-  header{padding:18px 24px; background:linear-gradient(135deg,#101726,#1a2340); border-bottom:1px solid #26324a; position:sticky; top:0; z-index:10;}
-  header h1{font-size:1.15rem;}
-  header .sub{color:var(--muted); font-size:.85rem;}
-  .progressBarWrap{height:6px; background:#232d42; margin-top:10px; border-radius:3px; overflow:hidden;}
-  .progressBar{height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .35s ease;}
-  main{max-width:900px; margin:0 auto; padding:28px 18px 130px;}
-  .slide{display:none; animation:fadeIn .35s ease;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  header{border-bottom:1px solid var(--line);padding:22px 0 0;}
+  .hwrap{max-width:760px;margin:0 auto;padding:0 20px;}
+  .kicker{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mid);}
+  h1{font-size:1.35rem;font-weight:700;letter-spacing:-.01em;margin:2px 0 0;}
+  .progress{margin-top:18px;height:1px;background:var(--line);position:relative;}
+  .progress .bar{position:absolute;left:0;top:-0.5px;height:2px;background:var(--ink);width:0;transition:width .4s ease;}
+  .step{font-size:.75rem;color:var(--mid);text-align:right;padding:8px 0 14px;}
+  main{max-width:760px;margin:0 auto;padding:44px 20px 130px;}
+  .slide{display:none;animation:in .3s ease;}
   .slide.active{display:block;}
-  @keyframes fadeIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
-  h2{color:var(--accent); margin-bottom:6px; font-size:1.5rem;}
-  h3{color:var(--accent2); margin:18px 0 8px; font-size:1.08rem;}
-  p{margin:10px 0;}
-  .card{background:var(--card); border:1px solid #26324a; border-radius:14px; padding:20px 22px; margin:16px 0;}
-  .formula{background:var(--card2); border-left:4px solid var(--accent); padding:12px 16px; border-radius:8px; font-size:1.02rem; margin:12px 0;}
-  .formula b{color:var(--accent2);}
-  .note{background:rgba(77,163,255,.08); border:1px solid rgba(77,163,255,.35); padding:10px 14px; border-radius:10px; margin:12px 0; font-size:.95rem;}
-  .note.warn{background:rgba(255,179,71,.08); border-color:rgba(255,179,71,.4);}
-  .note b{color:var(--accent2);}
-  ul,ol{margin:10px 0 10px 22px;}
-  li{margin:5px 0;}
-  canvas{width:100%; border-radius:10px; background:#0a0e16; display:block; touch-action:none;}
-  canvas.small{height:250px;}
-  canvas.mid{height:300px;}
-  canvas.big{height:330px;}
-  .controls{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:10px;}
-  .controls input[type=range]{flex:1; min-width:140px; accent-color:var(--accent);}
-  .val{font-weight:bold; color:var(--accent2); min-width:70px; display:inline-block;}
-  .btn{background:var(--accent); color:#fff; border:none; padding:9px 18px; border-radius:9px; font-size:.95rem; cursor:pointer; font-weight:600; font-family:inherit;}
-  .btn:hover{filter:brightness(1.15);}
-  .btn.ghost{background:transparent; border:1px solid #33415e; color:var(--text);}
-  .chip{display:inline-block; padding:3px 11px; border-radius:20px; font-size:.8rem; font-weight:600; margin:2px;}
-  .chip.pos{background:rgba(255,107,107,.15); color:var(--pos); border:1px solid var(--pos);}
-  .chip.neg{background:rgba(77,163,255,.15); color:var(--neg); border:1px solid var(--neg);}
-  nav.bottom{position:fixed; bottom:0; left:0; right:0; background:#111726ee; border-top:1px solid #26324a; padding:12px 18px; display:flex; justify-content:space-between; align-items:center; gap:12px; backdrop-filter:blur(6px); z-index:10;}
-  nav.bottom .btn{font-size:1rem; padding:11px 26px;}
-  .dots{display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center;}
-  .dot{width:9px; height:9px; border-radius:50%; background:#2c3a55; cursor:pointer; transition:.2s;}
-  .dot.on{background:var(--accent);}
-  .dot.seen{background:var(--accent2);}
-  .opt{padding:11px 15px; background:var(--card2); border:1px solid #2c3a55; border-radius:10px; cursor:pointer; transition:.15s;}
-  .opt:hover{border-color:var(--accent);}
-  .opt.correct{border-color:var(--good); background:rgba(66,211,146,.12);}
-  .opt.wrong{border-color:var(--bad); background:rgba(255,107,107,.12);}
-  .expl{font-size:.9rem; color:var(--muted); margin-top:8px;}
-  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
-  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
-  .toc a{color:var(--accent); text-decoration:none; display:block; padding:7px 10px; border-radius:8px; background:var(--card); margin:6px 0; border:1px solid #26324a;}
-  .toc a:hover{background:var(--card2);}
-  .toc a b{color:var(--accent2); margin-right:8px;}
-  .legend{font-size:.85rem; color:var(--muted); margin-top:6px;}
-  .swatch{display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:middle;}
-  .score{font-size:1.2rem; font-weight:700; color:var(--accent2); margin:10px 0 14px;}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .num{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mid);}
+  h2{font-size:1.6rem;font-weight:700;letter-spacing:-.02em;margin:4px 0 18px;}
+  h3{font-size:.95rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:34px 0 10px;padding-top:22px;border-top:1px solid var(--line);}
+  h3:first-of-type{border-top:none;padding-top:0;}
+  p{margin:0 0 14px;}
+  ul,ol{margin:0 0 16px 20px;}
+  li{margin:6px 0;}
+  b,strong{font-weight:700;}
+  .def{border-left:2px solid var(--ink);padding:2px 0 2px 16px;margin:18px 0;font-size:1.05rem;}
+  .note{background:var(--panel);border:1px solid var(--line);padding:12px 16px;margin:16px 0;font-size:.92rem;color:#333;}
+  figure{margin:24px 0;border:1px solid var(--line);}
+  canvas{width:100%;display:block;background:#fff;touch-action:none;}
+  figcaption{font-size:.78rem;color:var(--mid);padding:10px 14px;border-top:1px solid var(--line);}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 14px;border-top:1px solid var(--line);background:var(--panel);}
+  .controls input[type=range]{flex:1;min-width:130px;accent-color:#111;}
+  .controls label{font-size:.8rem;color:var(--mid);white-space:nowrap;}
+  .val{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.82rem;white-space:nowrap;}
+  button{font:inherit;font-size:.82rem;padding:7px 16px;background:#fff;border:1px solid var(--ink);cursor:pointer;transition:background .12s,color .12s;}
+  button:hover{background:var(--ink);color:#fff;}
+  button.primary{background:var(--ink);color:#fff;}
+  button.primary:hover{background:#000;}
+  nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);}
+  .nwrap{max-width:760px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:10px 20px;gap:12px;}
+  .dots{display:flex;gap:5px;}
+  .dot{width:6px;height:6px;border:1px solid #111;background:transparent;cursor:pointer;padding:0;}
+  .dot.on{background:#111;}
+  .dot.seen{background:#bbb;border-color:#bbb;}
+  .toc a{display:block;padding:10px 2px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:.95rem;}
+  .toc a:hover{background:var(--panel);}
+  .toc .n{display:inline-block;width:26px;color:var(--mid);font-size:.8rem;}
+  select{font:inherit;font-size:.82rem;padding:7px 10px;border:1px solid var(--ink);background:#fff;}
+  .opt{border:1px solid var(--line);padding:11px 14px;margin:8px 0;cursor:pointer;font-size:.92rem;transition:border-color .12s;}
+  .opt:hover{border-color:var(--ink);}
+  .opt.correct{border-color:var(--ink);background:var(--ink);color:#fff;}
+  .opt.correct .mark{color:#fff;}
+  .opt.wrong{border-color:#bbb;color:#bbb;text-decoration:line-through;}
+  .expl{display:none;font-size:.85rem;color:var(--mid);padding:10px 2px;border-top:1px dashed var(--line);margin-top:8px;}
+  .expl.show{display:block;}
+  .exrow{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0;}
+  .exrow .opt{flex:1;min-width:150px;margin:0;text-align:center;}
+  .score{font-size:1.2rem;font-weight:700;margin:14px 0;}
+  .quizcard{border:1px solid var(--line);padding:18px 18px 8px;margin:18px 0;}
+  .quizcard>p{font-weight:600;}
+  @media(max-width:600px){h1{font-size:1.15rem}h2{font-size:1.35rem}}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>⚡ NAWI 4bk – Ladung, Feld &amp; Co. <span style="font-weight:400;font-size:.85rem">(interaktiv)</span></h1>
-  <div class="sub">Ladung · Coulomb · Feld · Kondensator · Halbleiter · Transistor · Magnetismus · Motor — Pfeiltasten ← → funktionieren auch</div>
-  <div class="progressBarWrap"><div class="progressBar" id="progressBar"></div></div>
+  <div class="hwrap">
+    <div class="kicker">NAWI · Physik · Lernseite</div>
+    <h1>Ladung, Feld, Halbleiter, Magnetismus</h1>
+  </div>
+  <div class="hwrap">
+    <div class="progress"><div class="bar" id="progressBar"></div></div>
+    <div class="step" id="step"></div>
+  </div>
 </header>
 
 <main id="main">
 
-<!-- ===== 0 START ===== -->
-<section class="slide active" data-title="Start">
-  <h2>Willkommen! 👋</h2>
-  <p>Hier findest du <b>den ganzen Stoff für den Test</b> – nicht als Trocken-Text, sondern mit Animationen zum Ausprobieren. Wenn du etwas nicht verstehst: <b>Schiebe die Regler, klicke die Buttons!</b> Was man selbst bewegt hat, bleibt im Kopf.</p>
-  <div class="note"><b>So geht's:</b> Klicke dich unten mit <i>Weiter</i> durch die Kapitel. Am Ende wartet ein Quiz. Der Balken oben zeigt deinen Fortschritt.</div>
-  <h3>Inhaltsverzeichnis (klickbar)</h3>
-  <div class="toc" id="toc"></div>
-</section>
-
-<!-- ===== 1 Ladung ===== -->
-<section class="slide" data-title="Elektrische Ladung">
-  <h2>1 · Elektrische Ladung ⚡</h2>
-  <p>Zwischen geladenen Körpern wirken <b>anziehende oder abstoßende Kräfte</b> (= elektromagnetische Kraft). <b>Ruhen</b> die Teilchen → reine <b>elektrische Kraft</b>. <b>Bewegen</b> sie sich → zusätzlich <b>magnetische / elektromagnetische</b> Kräfte (→ Kapitel 9).</p>
-  <p>Die Ladung <b>Q</b> gibt an, <b>wie stark ein Körper geladen ist</b>. Gemessen in <b>Coulomb (C)</b>.</p>
-  <div class="formula"><b>Neutral:</b> Protonen (+) und Elektronen (−) gleichen sich aus.<br><b>Elektronenüberschuss</b> → negativ geladen &nbsp;·&nbsp; <b>Elektronenmangel</b> → positiv geladen</div>
-  <ul>
-    <li><span class="chip pos">Proton = positiv (+)</span> sitzt im Atomkern, bleibt immer im Körper</li>
-    <li><span class="chip neg">Elektron = negativ (−)</span> kann bei Reibung von Stoff zu Stoff wandern!</li>
-  </ul>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Elektronen übertragen</h3>
-    <p style="color:var(--muted);font-size:.95rem">Klicke auf die Fläche zwischen den Körpern (oder auf <i>Reiben</i>): Ein Elektron wandert von Körper B zu Körper A. Beobachte die Ladung Q!</p>
-    <canvas id="cvCharge" class="small"></canvas>
+<section class="slide active" data-title="Ladung">
+  <div class="num">01</div><h2>Elektrische Ladung</h2>
+  <p>Die <b>elektromagnetische Kraft</b> wirkt zwischen elektrisch geladenen Teilchen. Ruhen die Teilchen, spricht man von <b>elektrischen Kräften</b>. Bei bewegten Ladungen treten <b>magnetische bzw. elektromagnetische</b> Kräfte auf.</p>
+  <p>Die elektrische Ladung <b>Q</b> gibt an, <b>wie stark ein Körper geladen ist</b>.</p>
+  <p>Ist ein Körper <b>elektrisch neutral</b>, gleichen sich die Ladungen von Protonen und Elektronen aus. Gibt es einen <b>Protonen- bzw. Elektronenüberschuss</b>, weist der Körper eine elektrische Ladung auf.</p>
+  <figure>
+    <canvas id="cvCharge"></canvas>
     <div class="controls">
-      <button class="btn ghost" id="chgRub">🤚 Reiben (1 Elektron B → A)</button>
-      <button class="btn ghost" id="chgReset">↺ Neutral machen</button>
+      <button id="chgRub">Elektron übertragen</button>
+      <button id="chgReset">Zurücksetzen</button>
       <span class="val" id="chgInfo"></span>
     </div>
-    <div class="note" style="margin-bottom:0"><b>Beobachtung:</b> A fehlt ein Elektron → <b>+</b>. B hat ein Elektron zu viel → <b>−</b>. Die Elektronen wurden nur <b>verschoben</b>, nie erzeugt oder zerstört – die Gesamtladung bleibt <b>0</b>!</div>
-  </div>
+    <figcaption>Versuch: Elektronen von Körper B nach A übertragen. A lädt sich dabei positiv, B negativ. Die Gesamt­ladung bleibt immer null.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 2 Coulomb ===== -->
 <section class="slide" data-title="Coulomb'sches Gesetz">
-  <h2>2 · Coulomb’sches Gesetz 🔁</h2>
-  <p>Es beschreibt die <b>elektrische Kraft zwischen zwei punktförmigen Ladungen</b> („punktförmig“ = Ladung ohne räumliche Ausdehnung).</p>
-  <div class="formula"><b>ungleichnamig</b> (+ und −) → <b>Anziehung</b><br><b>gleichnamig</b> (+ + oder − −) → <b>Abstoßung</b></div>
-  <p><b>Abstandsregel (sehr wichtig!):</b> Die Kraft nimmt mit dem Abstand ab. <b>Verdoppelt man den Abstand, misst man nur noch ¼ der Kraft</b> (3× Abstand → nur noch 1/9).</p>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Abstand und Kraft</h3>
-    <canvas id="cvCoulomb" class="mid"></canvas>
+  <div class="num">02</div><h2>Coulomb’sches Gesetz</h2>
+  <p>Beschreibt die <b>elektrische Kraft zwischen zwei punktförmigen Ladungen</b> (Ladung ohne räumliche Ausdehnung).</p>
+  <p>Ungleichnamige Ladungen ziehen sich an, gleichnamige stoßen sich ab.</p>
+  <p><b>Die Kraft nimmt mit dem Abstand ab:</b> Verdoppelt man den Abstand zwischen zwei Ladungen, misst man nur noch <b>¼ der Kraft</b>.</p>
+  <figure>
+    <canvas id="cvCoulomb"></canvas>
     <div class="controls">
-      <span>Abstand r:</span><input type="range" id="coulR" min="40" max="380" value="200">
-      <button class="btn ghost" id="coulFlip">Ladung 2 umkehren (+/−)</button>
+      <label>Abstand r</label>
+      <input type="range" id="coulR" min="40" max="380" value="200">
+      <button id="coulFlip">Ladung 2 umkehren</button>
       <span class="val" id="coulInfo"></span>
     </div>
-    <div class="note" style="margin-bottom:0"><b>Teste:</b> r = 200 → F = 100 %. Zieh den Regler weit nach rechts (r fast verdoppelt) → F bricht auf einen kleinen Bruchteil ein. So sieht die 1/r²-Abnahme aus!</div>
-  </div>
+    <figcaption>Die Pfeillänge zeigt die Kraftstärke (bezogen auf r = 200). Verdopple den Abstand: die Kraft bricht auf ein Viertel ein.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 3 Erhaltung + Reihe ===== -->
-<section class="slide" data-title="Ladungserhaltung & -übertragung">
-  <h2>3 · Ladungserhaltung &amp; Ladungsübertragung ♻️</h2>
-  <h3>Ladungserhaltung</h3>
-  <p>Elektronen können in manchen Fällen (z. B. durch <b>Reibung</b>) von einem Stoff auf einen anderen <b>übertragen</b> werden. Aber:</p>
-  <div class="note warn"><b>Elektronen werden niemals erzeugt oder zerstört</b> – sie können nur übertragen werden → <b>Ladung ist eine Erhaltungsgröße!</b> Was der eine Stoff an Elektronen verliert, bekommt der andere exakt dazu.</div>
-  <h3>Die reibungselektrische Reihe 📜</h3>
-  <p>Woher weiß man, <b>von wo nach wo</b> Elektronen übergehen? In der <b>reibungselektrischen Reihe</b> sind Stoffe nach ihrer <b>Bereitschaft, Elektronen abzugeben</b>, gereiht:</p>
-  <ul>
-    <li><b>Je weiter oben</b> ein Stoff steht, desto <b>leichter gibt er Elektronen ab</b> → lädt sich <b>positiv</b></li>
-    <li>Der Stoff <b>weiter unten</b> nimmt die Elektronen auf → lädt sich <b>negativ</b></li>
-  </ul>
-  <div class="formula">Reihenfolge (oben → unten): <b>Fell/Haar → Glas → Wolle → Papier → Baumwolle → Holz → Kunststoff (PVC)</b></div>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Zwei Stoffe reiben</h3>
-    <div class="grid2">
-      <div><label><b>Stoff 1:</b></label>
-        <select id="matA" class="btn ghost" style="width:100%">
-          <option value="4">Fell / Haar</option><option value="3" selected>Wolle</option>
-          <option value="2">Papier</option><option value="1">Holz</option>
-        </select></div>
-      <div><label><b>Stoff 2:</b></label>
-        <select id="matB" class="btn ghost" style="width:100%">
-          <option value="3">Wolle</option><option value="2">Papier</option>
-          <option value="1">Holz</option><option value="0" selected>Kunststoff (PVC)</option>
-        </select></div>
+<section class="slide" data-title="Ladungserhaltung & Übertragung">
+  <div class="num">03</div><h2>Ladungserhaltung &amp; Übertragung</h2>
+  <p>Elektronen können in manchen Fällen von einem Stoff auf einen anderen übertragen werden, z. B. durch <b>Reibung</b>. Elektronen werden aber <b>niemals erzeugt oder zerstört</b>, sondern nur übertragen – <b>Ladung ist eine Erhaltungsgröße</b>.</p>
+  <p>Um herauszufinden, <b>von wo nach wo</b> Elektronen übergehen, sieht man in der <b>reibungselektrischen Reihe</b> nach. Dort sind Stoffe anhand ihrer <b>Bereitschaft, Elektronen abzugeben</b>, gereiht: Je weiter oben ein Stoff steht, desto leichter gibt er Elektronen an Stoffe ab, die weiter unten liegen.</p>
+  <figure>
+    <div class="controls" style="border-top:none">
+      <label>Stoff 1</label><select id="matA">
+        <option value="4">Fell / Haar</option><option value="3" selected>Wolle</option>
+        <option value="2">Papier</option><option value="1">Holz</option></select>
+      <label>Stoff 2</label><select id="matB">
+        <option value="3">Wolle</option><option value="2">Papier</option>
+        <option value="1">Holz</option><option value="0" selected>Kunststoff</option></select>
+      <button id="rubBtn" class="primary">Reiben</button>
     </div>
-    <div style="text-align:center;margin:14px 0"><button class="btn" id="rubBtn">🤚 Reiben!</button></div>
-    <canvas id="cvRub" class="small"></canvas>
-    <p id="rubResult" class="note" style="margin-bottom:0">Wähle zwei Stoffe und drücke <i>Reiben</i>!</p>
-  </div>
+    <canvas id="cvRub"></canvas>
+    <figcaption id="rubResult">Reihe: Fell → Glas → Wolle → Papier → Baumwolle → Holz → Metall → Kunststoff.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 4 Feld ===== -->
 <section class="slide" data-title="Das elektrische Feld">
-  <h2>4 · Das elektrische Feld 🌐</h2>
-  <p><b>Feld:</b> Ein Feld liegt vor, wenn <b>jedem Punkt des Raums zu jedem Zeitpunkt ein Wert einer physikalischen Größe zugeordnet ist</b> – hier: die elektrische Kraft auf eine Probeladung.</p>
-  <div class="note"><b>Ausdehnung:</b> Ein elektrisches Feld erstreckt sich <b>theoretisch bis ins Unendliche</b> – seine <b>Stärke nimmt aber immer weiter ab</b>, bis die elektrische Kraft irgendwann <b>nicht mehr nachweisbar</b> ist.</div>
-  <h3>Elektrische Feldlinien</h3>
-  <p>Feldlinien <b>veranschaulichen die räumliche Struktur</b> eines elektrischen Feldes. Die <b>Richtung der Kraft</b> zeichnet man mit Pfeilen ein.</p>
-  <ul>
-    <li>Feldlinien verlaufen von <b>+</b> nach <b>−</b> (= Kraftrichtung auf eine positive Probeladung)</li>
-    <li><b>Je weiter die Feldlinien auseinander liegen, desto kleiner sind dort die Kräfte!</b> (eng = starkes Feld)</li>
-  </ul>
-  <h3>Elektrische Feldstärke E</h3>
-  <p>Die elektrische Feldstärke <b>E</b> gibt an, <b>welche Krafteinwirkung eine Probeladung Q<sub>P</sub></b> im elektrischen Feld einer Ladung oder Ladungsverteilung <b>Q</b> erfährt.</p>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Feldlinien live</h3>
-    <p style="color:var(--muted);font-size:.95rem">Zieh die beiden Ladungen mit Maus oder Finger. Wo liegen die Linien eng (= starke Kraft), wo weit auseinander (= schwache Kraft)?</p>
-    <canvas id="cvField" class="mid"></canvas>
+  <div class="num">04</div><h2>Das elektrische Feld</h2>
+  <p>Ein <b>Feld</b> liegt vor, wenn <b>jedem Punkt des Raums zu jedem Zeitpunkt ein Wert einer physikalischen Größe zugeordnet ist</b>.</p>
+  <p>Ein elektrisches Feld erstreckt sich <b>theoretisch bis ins Unendliche</b>, nur nimmt seine Stärke immer weiter ab, bis die elektrische Kraft <b>nicht mehr nachweisbar</b> ist.</p>
+  <h3>Feldlinien &amp; Feldstärke</h3>
+  <p><b>Elektrische Feldlinien</b> veranschaulichen die räumliche Struktur eines elektrischen Feldes. Die Richtung der Kraft zeichnet man mit Pfeilen ein. <b>Je weiter die Feldlinien auseinander liegen, desto kleiner sind dort die Kräfte.</b></p>
+  <p>Die <b>elektrische Feldstärke E</b> gibt an, welche <b>Krafteinwirkung eine Probeladung Q<sub>P</sub></b> im elektrischen Feld einer Ladung oder Ladungsverteilung <b>Q</b> erfährt.</p>
+  <figure>
+    <canvas id="cvField"></canvas>
     <div class="controls">
-      <button class="btn ghost" id="fieldPreset1">+ und − (Anziehungsmuster)</button>
-      <button class="btn ghost" id="fieldPreset2">+ und + (Abstoßungsmuster)</button>
+      <button id="fieldPreset1">+ und −</button>
+      <button id="fieldPreset2">+ und +</button>
     </div>
-    <div class="legend"><span class="swatch" style="background:var(--pos)"></span> positive Ladung &nbsp; <span class="swatch" style="background:var(--neg)"></span> negative Ladung</div>
-  </div>
+    <figcaption>Die beiden Ladungen lassen sich verschieben (ziehen). Eng beieinanderliegende Linien bedeuten ein starkes Feld.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 5 Kondensator ===== -->
 <section class="slide" data-title="Der Kondensator">
-  <h2>5 · Der Kondensator 🔋</h2>
-  <p>Kondensatoren können <b>elektrische Ladung (Energie) speichern</b> und <b>kurzzeitig bereitstellen</b>, wenn eine Spannung angelegt wird. Ändert sich die Spannung, geben sie die gespeicherte Ladung <b>wieder ab</b>.</p>
-  <p><b>Aufbau (Plattenkondensator):</b> 2 elektrisch leitende Flächen (Platten), zwischen denen bei angelegter Spannung ein <b>elektrisches Feld</b> entsteht.</p>
-  <div class="note"><b>Anwendungen:</b> Touchscreens, LED-Schaltungen – überall dort, wo kurzzeitig gespeicherte Ladung/Energie gebraucht wird.</div>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Laden und Entladen</h3>
-    <canvas id="cvCap" class="mid"></canvas>
+  <div class="num">05</div><h2>Der Kondensator</h2>
+  <p>Kondensatoren können <b>elektrische Ladung (Energie) speichern</b> und <b>kurzzeitig bereitstellen</b>, wenn eine Spannung an sie angelegt wird. Ändert sich die Spannung, geben sie die gespeicherte Ladung wieder ab.</p>
+  <p>Ein Kondensator besteht aus <b>2 elektrisch leitenden Flächen</b>, zwischen denen bei angelegter Spannung ein elektrisches Feld entsteht – <b>Plattenkondensator</b>.</p>
+  <p class="def">Anwendungen: Touchscreens, LED-Schaltungen.</p>
+  <figure>
+    <canvas id="cvCap"></canvas>
     <div class="controls">
-      <button class="btn" id="capCharge">⚡ Spannung anlegen (laden)</button>
-      <button class="btn ghost" id="capDischarge">👇 Entladen (z. B. LED)</button>
+      <button id="capCharge" class="primary">Laden</button>
+      <button id="capDischarge">Entladen</button>
       <span class="val" id="capInfo"></span>
     </div>
-    <p class="expl show">Beim <b>Laden</b>: Elektronen sammeln sich auf der einen Platte an (−) und fehlen auf der anderen (+) → zwischen den Platten baut sich ein <b>elektrisches Feld E</b> auf. Beim <b>Entladen</b> fließen die Elektronen zurück – kurzzeitig durch den Verbraucher, z. B. eine LED 💡.</p>
-  </div>
+    <figcaption>Beim Laden sammeln sich Elektronen auf der einen Platte und fehlen auf der anderen – zwischen den Platten baut sich das Feld E auf. Beim Entladen fließt die Ladung kurzzeitig zurück.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 6 Halbleiter ===== -->
-<section class="slide" data-title="Halbleiter & Dotierung">
-  <h2>6 · Halbleiter 🧊</h2>
-  <p>Grundsätzlich unterscheidet man <b>Leiter</b> und <b>Nicht-Leiter</b> (Isolatoren). Es gibt aber Materialien, deren <b>Leitfähigkeit dazwischen</b> liegt: <b>Halbleiter</b> → Elektronikindustrie: <b>Handys, Computer, Fernseher…</b></p>
-  <h3>Warum leiten Halbleiter (manchmal)?</h3>
-  <ul>
-    <li><b>Silizium, Germanium, Selen</b> haben <b>4 Valenzelektronen</b> (Schale, die für Atombindungen verwendet wird).</li>
-    <li>Im <b>Kristallgitter</b> sind alle 4 VE <b>fest gebunden</b> → <b>keine frei beweglichen Elektronen</b> → (fast) kein Strom.</li>
-    <li>Die VE sind aber nur <b>schwach</b> gebunden: Durch <b>Zufuhr von Wärmeenergie</b> (oder Licht) lösen sich Elektronen aus dem Gitter → <b>Leitungselektronen</b>; sie hinterlassen eine <b>Lücke = „Loch“</b>.</li>
-    <li>Freie Elektronen können sich bewegen → <b>Strom fließt</b>. <b>Je wärmer, desto besser leitet der Halbleiter!</b></li>
-    <li>Das <b>Loch wird als positive Ladung verstanden</b> → anziehende Wirkung auf Leitungselektronen → Elektron fällt zurück ins Loch = <b>Rekombination</b>.</li>
-  </ul>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Silizium erhitzen 🔥</h3>
-    <canvas id="cvSemi" class="big"></canvas>
+<section class="slide" data-title="Halbleiter">
+  <div class="num">06</div><h2>Halbleiter</h2>
+  <p>Zwischen <b>elektrischen Leitern</b> und <b>Nicht-Leitern</b> gibt es Materialien, deren Leitfähigkeit dazwischen liegt: <b>Halbleiter</b> – Grundlage der Elektronik (Handys, Computer, Fernseher).</p>
+  <p><b>Silizium, Germanium und Selen</b> haben <b>4 Valenzelektronen</b> (Schale, die für Atombindungen verwendet wird). Im Kristallgitter sind alle 4 VE fest gebunden – <b>keine frei beweglichen Elektronen</b>.</p>
+  <p>Die VE sind nur <b>schwach an die Atome gebunden</b>: Durch Zufuhr von <b>Wärmeenergie</b> können sich Elektronen aus dem Gitter lösen – <b>Leitungselektronen</b>. Sie hinterlassen eine <b>Lücke (Loch)</b>, die als <b>positive Ladung</b> verstanden wird und eine anziehende Wirkung auf Leitungselektronen ausübt (= <b>Rekombination</b>). Strom fließt.</p>
+  <figure>
+    <canvas id="cvSemi"></canvas>
     <div class="controls">
-      <span>Temperatur:</span><input type="range" id="semiT" min="0" max="100" value="0">
+      <label>Temperatur</label>
+      <input type="range" id="semiT" min="0" max="100" value="0">
       <span class="val" id="semiInfo"></span>
     </div>
-    <p class="expl show"><b>Rote Kreise</b> = Si-Atome (Striche = Valenzbindungen), <b>blaue Punkte „−“</b> = Leitungselektronen, <b>gelbe Ringe „+“</b> = zurückbleibende Löcher. Bei kaltem Silizium ist nichts frei → kaum Leitung. Erhöhe die Temperatur: Elektronen und Löcher entstehen! Kommt ein Elektron einem Loch nahe, fällt es zurück (<b>Rekombination</b>) und das Loch entsteht anderswo neu.</p>
-  </div>
-  <h3>Dotierung: Leitung gezielt einbauen 🎯</h3>
+    <figcaption>Versuch: Erwärme das Silizium. Volle Kreise = Atome, offene Punkte = Leitungselektronen, gestrichelte Kreise = Löcher. Naht ein Elektron einem Loch, rekombiniert es – das Loch entsteht anderswo neu.</figcaption>
+  </figure>
+  <h3>Dotierung</h3>
   <ul>
-    <li><b>n-Dotierung</b> (Negativhalbleiter): Zufuhr von Elementen der <b>5. Hauptgruppe</b> (z. B. Phosphor, 5 VE). 4 binden ins Gitter, <b>1 Elektron bleibt übrig</b> → <b>Elektronenüberschuss</b>.</li>
-    <li><b>p-Dotierung</b> (Positivhalbleiter): Zufuhr von Elementen der <b>3. Hauptgruppe</b> (z. B. Bor, 3 VE). Nur 3 Bindungen möglich → <b>1 Loch / Elektronenmangel</b>.</li>
+    <li><b>n-Dotierung</b> (Negativhalbleiter): <b>Elektronenüberschuss</b> durch Zufuhr von Elementen der <b>5. Hauptgruppe</b>.</li>
+    <li><b>p-Dotierung</b> (Positivhalbleiter): <b>Elektronenmangel</b> durch Zufuhr von Elementen der <b>3. Hauptgruppe</b>.</li>
   </ul>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: n- oder p-dotieren</h3>
-    <canvas id="cvDope" class="mid"></canvas>
+  <figure>
+    <canvas id="cvDope"></canvas>
     <div class="controls">
-      <button class="btn ghost" id="dopeNone">Reines Silizium</button>
-      <button class="btn ghost" id="dopeN">n-Dotierung (5. HG, z. B. Phosphor)</button>
-      <button class="btn ghost" id="dopeP">p-Dotierung (3. HG, z. B. Bor)</button>
+      <button id="dopeNone">reines Si</button>
+      <button id="dopeN">n-Dotierung</button>
+      <button id="dopeP">p-Dotierung</button>
       <span class="val" id="dopeInfo">undotiert</span>
     </div>
-    <p class="expl show">Das <b>andersfarbige Atom</b> ist das Fremdatom (Mitte, 2. Reihe). Bei <b>n</b>: 5 VE → das 5. (blau, gestrichelt angebunden) ist frei beweglich. Bei <b>p</b>: nur 3 VE → im Gitter bleibt ein <b>Loch</b> (gelber Ring „+“).</p>
-  </div>
+    <figcaption>Das markierte Atom ist das Fremdatom: 5. Hauptgruppe (z. B. Phosphor) hinterlässt ein freies Elektron; 3. Hauptgruppe (z. B. Bor) hinterlässt ein Loch.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 7 Transistor ===== -->
 <section class="slide" data-title="Der Transistor">
-  <h2>7 · Der Transistor 🔘</h2>
-  <p>Ein <b>Halbleiterbauelement</b>, das grundsätzlich dem <b>Steuern / Verstärken niedriger Ströme</b> dient. Er besteht aus <b>3 unterschiedlich dotierten Schichten</b> bzw. <b>2 p-n-Übergängen</b> = <b>Bipolartransistor</b>. Es gibt den <b>npn</b>- und den <b>pnp</b>-Transistor.</p>
-  <ul>
-    <li><b>Emitter (E)</b> – „schickt“ die Ladungsträger los</li>
-    <li><b>Basis (B)</b> – dünne mittlere Steuerschicht</li>
-    <li><b>Kollektor (C)</b> – „sammelt“ die Ladungsträger ein</li>
-  </ul>
-  <h3>Wie schaltet der npn-Transistor?</h3>
-  <ul>
-    <li>Nur Spannung zwischen <b>Emitter und Kollektor</b>: Der obere p-n-Übergang ist in <b>Sperrrichtung</b> geschaltet → <b>kein Kollektorstrom</b> kann fließen. Der Transistor ist <i>gesperrt</i> – wie ein geschlossenes Ventil.</li>
-    <li>Zusätzliche Spannung zwischen <b>Emitter und Basis</b>: Ist die <b>Basis-Emitter-Spannung größer als die Schwellenspannung</b> (Si ≈ 0,7 V), fließt ein Strom I im <b>Basisstromkreis</b> → der Transistor <b>leitet</b>, ein großer Kollektorstrom fließt.</li>
-  </ul>
-  <div class="note"><b>Warum „Verstärker“?</b> Ein <i>kleiner</i> Basisstrom steuert einen <i>großen</i> Kollektorstrom. Deshalb dient der Transistor als Schalter (Computer!) und Verstärker.</div>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Basis-Spannung regeln</h3>
-    <canvas id="cvTrans" class="big"></canvas>
+  <div class="num">07</div><h2>Der Transistor</h2>
+  <p>Ein <b>Halbleiterbauelement</b>, das dem <b>Steuern / Verstärken niedriger Ströme</b> dient. Er besteht aus <b>3 unterschiedlich dotierten Schichten</b> bzw. <b>2 p-n-Übergängen</b> = <b>Bipolartransistor</b> (npn- und pnp-Transistor).</p>
+  <p>Wird eine Spannung zwischen <b>Emitter und Kollektor</b> eines npn-Transistors angelegt, ist der obere p-n-Übergang in <b>Sperrrichtung</b> geschaltet – es kann <b>kein Kollektorstrom fließen</b>.</p>
+  <p>Wird eine zusätzliche Spannung zwischen <b>Emitter und Basis</b> angelegt und ist die <b>Basis-Emitter-Spannung größer als die Schwellenspannung</b>, fließt ein Strom I im <b>Basisstromkreis</b> – der Transistor leitet.</p>
+  <figure>
+    <canvas id="cvTrans"></canvas>
     <div class="controls">
-      <span>U<sub>BE</sub>:</span><input type="range" id="trU" min="0" max="12" value="0" step="0.1">
+      <label>U<sub>BE</sub></label>
+      <input type="range" id="trU" min="0" max="12" value="0" step="0.1">
       <span class="val" id="trInfo"></span>
     </div>
-    <p class="expl show">Unter <b>0,7 V</b> (Schwellenspannung): gesperrt. Über <b>0,7 V</b>: Basisstrom fließt (rote Punkte) → der Transistor öffnet, ein großer Kollektorstrom fließt (grüner Balken rechts). Kleiner Steuerstrom, große Wirkung = Verstärkung!</p>
-  </div>
+    <figcaption>Unter der Schwellenspannung (≈ 0,7 V) sperrt der Transistor. Darüber fließt Basisstrom (Punkte) und ein großer Kollektorstrom.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 8 Magnetismus ===== -->
 <section class="slide" data-title="Magnetismus">
-  <h2>8 · Magnetismus 🧲</h2>
-  <p>Ein <b>Magnet</b> ist ein Körper, der ein <b>magnetisches Feld in seiner Umgebung erzeugt</b>. <b>Dauer-/Permanentmagnete</b> behalten ihre magnetischen Eigenschaften <b>dauerhaft oder für längere Zeit</b>.</p>
-  <p>Materialien, die von Magneten <b>angezogen</b> werden und dabei <b>magnetisiert</b> werden, nennt man <b>ferromagnetisch</b>.</p>
-  <h3>Magnetische Kraft – die 5 wichtigsten Punkte</h3>
-  <ul>
-    <li>Zwischen Magneten wirken <b>anziehende bzw. abstoßende Kräfte</b>: <b>gleichnamige Pole stoßen sich ab, ungleichnamige ziehen sich an.</b></li>
-    <li>Die magnetische Wirkung ist <b>an den Polen am stärksten</b>.</li>
-    <li>Gegenstände aus <b>Eisen, Nickel, Cobalt</b> (und Legierungen dieser) werden von Magneten angezogen. <i>(Merke: „Fe-Ni-Co“)</i></li>
-    <li>Gegenstände, die ferromagnetische Stoffe enthalten, können <b>magnetisiert</b> werden.</li>
-    <li><b>Entmagnetisierung</b> durch <b>Erhitzen oder starke Erschütterung</b>.</li>
-  </ul>
-  <div class="card">
-    <h3 style="margin-top:0">Spiel: Was wird vom Magneten angezogen?</h3>
-    <div class="grid2" id="ferroGrid"></div>
-    <p id="ferroMsg" class="note" style="margin-bottom:0">Klick alle an und finde die ferromagnetischen Stoffe!</p>
-  </div>
-  <p><b>Magnetfeld</b> = der <b>Wirkungsbereich um einen Magneten</b>. Die Wirkung auf andere magnetische Körper hängt vom <b>Abstand, der Form und der Ausrichtung</b> zueinander ab.</p>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Pole zusammenführen</h3>
-    <canvas id="cvMag" class="mid"></canvas>
+  <div class="num">08</div><h2>Magnetismus</h2>
+  <p>Ein <b>Magnet</b> ist ein Körper, der ein magnetisches Feld in seiner Umgebung erzeugt. <b>Dauer-/Permanentmagnete</b> behalten ihre magnetischen Eigenschaften dauerhaft oder für längere Zeit. Materialien, die von Magneten angezogen werden und dabei magnetisiert werden, nennt man <b>ferromagnetisch</b>.</p>
+  <p class="def">Magnetische Kraft: Gleichnamige Pole stoßen sich ab, ungleichnamige ziehen sich an. Die Wirkung ist an den Polen am stärksten. Eisen, Nickel, Cobalt (und Legierungen) werden angezogen. Entmagnetisierung durch Erhitzen oder starke Erschütterung.</p>
+  <p><b>Magnetfeld</b> = der Wirkungsbereich um einen Magneten. Die Wirkung ist von <b>Abstand, Form und Ausrichtung</b> zueinander abhängig.</p>
+  <div class="exrow" id="ferroGrid"></div>
+  <div class="note" id="ferroMsg">Welche Stoffe sind ferromagnetisch? Alle ankreuzen.</div>
+  <figure>
+    <canvas id="cvMag"></canvas>
     <div class="controls">
-      <button class="btn ghost" id="magFlip">Linken Magneten umkehren (N ⇄ S)</button>
+      <button id="magFlip">Linken Pol umkehren</button>
       <span class="val" id="magInfo"></span>
     </div>
-    <p class="expl show">Feldlinien laufen außerhalb des Magneten vom <b>Nord- zum Südpol</b>. <b>Ungleichnamige Pole</b> (S–N): Feldlinien verbinden beide Magnete → <b>Anziehung 🤝</b>. <b>Gleichnamige</b> (N–N): Linien weichen aus → <b>Abstoßung 🔥</b>.</p>
-  </div>
+    <figcaption>Ungleichnamige Pole ziehen sich an, gleichnamige stoßen sich ab. Feldlinien verlaufen außerhalb des Magneten vom Nord- zum Südpol.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 9 Ströme, Lorentz, Elektromagnet ===== -->
-<section class="slide" data-title="Strom, Elektromagnet & Lorentzkraft">
-  <h2>9 · Ströme, Elektromagnet &amp; Lorentzkraft 🌀</h2>
-  <p><b>Bewegte elektrische Ladungen erzeugen ein Magnetfeld.</b> Das ist der Schlüsselsatz für dieses Kapitel!</p>
-  <h3>Elektromagnet</h3>
-  <p>Er besteht aus einer <b>stromdurchflossenen Spule</b>, in der sich aufgrund des Stromflusses ein <b>Magnetfeld aufbaut</b>. Vorteil: Man kann ihn <b>ein-/ausschalten</b> und seine Stärke regeln!</p>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Spule stromdurchfließen lassen</h3>
-    <canvas id="cvCoil" class="mid"></canvas>
+<section class="slide" data-title="Elektromagnet & Lorentzkraft">
+  <div class="num">09</div><h2>Elektromagnet &amp; Lorentzkraft</h2>
+  <p><b>Bewegte elektrische Ladungen erzeugen ein Magnetfeld.</b></p>
+  <p>Ein <b>Elektromagnet</b> besteht aus einer <b>stromdurchflossenen Spule</b>, in der sich aufgrund des Stromflusses ein Magnetfeld aufbaut.</p>
+  <p>Bewegte Ladungen erzeugen nicht nur ein Magnetfeld – sie erfahren <b>im Magnetfeld auch die Wirkung einer Kraft</b>: die <b>Lorentzkraft</b>.</p>
+  <figure>
+    <canvas id="cvCoil"></canvas>
     <div class="controls">
-      <span>Stromstärke:</span><input type="range" id="coilI" min="0" max="100" value="0">
+      <label>Stromstärke</label>
+      <input type="range" id="coilI" min="0" max="100" value="0">
       <span class="val" id="coilInfo"></span>
     </div>
-    <p class="expl show">Strom = 0 → kein Magnetfeld. Erhöhe den Strom: Das Magnetfeld der Spule (Ellipsen) wird stärker, die Pole (N/S) deutlicher. Genau so funktioniert ein <b>Elektromagnet</b>: stromdurchflossene Spule = steuerbarer Magnet.</p>
-  </div>
-  <h3>Lorentzkraft</h3>
-  <div class="note">Bewegte Ladungen erzeugen <b>nicht nur</b> ein Magnetfeld – sie erfahren <b>im Magnetfeld auch die Wirkung einer Kraft</b>: die <b>Lorentzkraft</b>. Sie wirkt <b>senkrecht zur Bewegungsrichtung</b>.</div>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Versuch: Lorentzkraft ablenken</h3>
-    <canvas id="cvLorenz" class="mid"></canvas>
+    <figcaption>Ohne Strom kein Feld. Mit steigender Stromstärke baut sich das Magnetfeld der Spule auf.</figcaption>
+  </figure>
+  <figure>
+    <canvas id="cvLorenz"></canvas>
     <div class="controls">
-      <button class="btn ghost" id="lorFlip">Magnetfeld umkehren</button>
+      <button id="lorFlip">Magnetfeld umkehren</button>
       <span class="val" id="lorInfo"></span>
     </div>
-    <p class="expl show">Die grünen Teilchen (= bewegte Ladungen, z. B. Strom in einem Draht) fliegen durch das Feld der beiden Pole. Sie werden <b>senkrecht zu ihrer Flugrichtung abgelenkt</b> = Lorentzkraft. Kehr das Feld um → die Ablenkung zeigt in die Gegenrichtung. Genau diese Kraft bringt auch den Rotor im Elektromotor in Drehung!</p>
-  </div>
+    <figcaption>Bewegte Ladungsträger (Linien) werden im Feld senkrecht zu ihrer Flugrichtung abgelenkt – die Lorentzkraft. Bei umgekehrtem Feld kehrt sich die Ablenkung um.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 10 Motor ===== -->
 <section class="slide" data-title="Der Elektromotor">
-  <h2>10 · Der Elektromotor 🔄</h2>
-  <h3>Aufbau</h3>
-  <ul>
-    <li>Ein <b>drehbarer Elektromagnet (Rotor, Anker)</b> sitzt in einem <b>äußeren Magnetfeld</b>, das von einem oder zwei <b>Dauermagneten (Statoren)</b> erzeugt wird.</li>
-    <li>Der Rotor ist über <b>Schleifkontakte (Bürsten)</b> mit einer <b>Gleichspannungsquelle</b> verbunden.</li>
-  </ul>
-  <h3>Ablauf – Schritt für Schritt</h3>
-  <ol>
-    <li>Fließt <b>Strom durch den Rotor</b>, wird er selbst zu einem <b>Magneten mit Nord- und Südpol</b>.</li>
-    <li>Der <b>Nordpol des Rotors wird zum Südpol des Stators gezogen</b> → der Rotor dreht sich.</li>
-    <li>Danach würde er <b>stehen bleiben</b> (N und S liegen sich jetzt gegenüber).</li>
-    <li>Deshalb muss der <b>Stromfluss im Rotor bei einer bestimmten Winkelstellung umgepolt</b> werden, damit sich die <b>Magnetpole des Rotors wieder umkehren</b>.</li>
-    <li>Diese Umpolung macht der <b>Kommutator</b> → Dauerdrehung! 🎉</li>
-  </ol>
-  <div class="card">
-    <h3 style="margin-top:0">🎮 Elektromotor live</h3>
-    <canvas id="cvMotor" class="big"></canvas>
+  <div class="num">10</div><h2>Der Elektromotor</h2>
+  <p><b>Aufbau:</b> Ein drehbarer <b>Elektromagnet (Rotor, Anker)</b> befindet sich in einem äußeren Magnetfeld, das von einem oder zwei <b>Dauermagneten (Statoren)</b> erzeugt wird. Der Rotor ist über <b>Schleifkontakte (Bürsten)</b> mit einer Gleichspannungsquelle verbunden.</p>
+  <p>Fließt Strom durch den Rotor, wird er selbst zu einem Magneten mit Nord- und Südpol. Der Nordpol des Rotors wird zum Südpol des Stators gezogen – danach würde er stehen bleiben. Damit er sich weiterdreht, muss der Stromfluss im Rotor bei einer bestimmten Winkelstellung <b>umgepolt</b> werden, damit sich die Magnetpole des Rotors wieder umkehren. Das macht der <b>Kommutator</b>.</p>
+  <figure>
+    <canvas id="cvMotor"></canvas>
     <div class="controls">
-      <span>Drehzahl:</span><input type="range" id="motSpeed" min="5" max="100" value="60">
-      <button class="btn ghost" id="motComm">Kommutator AUS ⏸</button>
+      <label>Drehzahl</label>
+      <input type="range" id="motSpeed" min="5" max="100" value="60">
+      <button id="motComm">Kommutator AUS</button>
       <span class="val" id="motInfo"></span>
     </div>
-    <p class="expl show">Außen: die <b>Statoren</b> (Dauermagnete, S und N). Mitte: <b>Rotor</b> (rot = Nordseite, blau = Südseite), davor <b>Kommutator</b> (gelber Strich) und <b>Bürsten</b>. Schalte den Kommutator <b>AUS</b>: Der Rotor dreht nur noch, bis sich Nord- und Südpol anziehen – und <b>bleibt stecken</b>. Genau das verhindert der Kommutator in echt: Er polt den Strom um, die Pole kehren sich um → Endlosdrehung.</p>
-  </div>
+    <figcaption>Stelle den Kommutator AUS: Der Rotor dreht sich nur, bis Nord- und Südpol sich gegenseitig gefunden haben – und bleibt dann stecken. Genau diese Blockade verhindert der Kommutator durch Umpolung.</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 11 Quiz ===== -->
-<section class="slide" data-title="Quiz 🎯">
-  <h2>Quiz – teste dich! 🎯</h2>
-  <p>Fragen zu allem. Ruhig bleiben – du schaffst das! 💪</p>
+<section class="slide" data-title="Quiz">
+  <div class="num">11</div><h2>Quiz</h2>
+  <p id="quizIntro">Alle Fragen beantworten. Pro Frage gibt es eine Erklärung.</p>
   <div id="quiz"></div>
-  <div class="card" id="scoreCard" style="text-align:center; display:none">
-    <h3 style="margin-top:0">Dein Ergebnis</h3>
+  <div id="scoreCard" style="display:none">
+    <h3>Ergebnis</h3>
     <div class="score" id="scoreTxt"></div>
-    <button class="btn" onclick="location.reload()">Nochmal üben 🔄</button>
+    <button onclick="location.reload()">Nochmal</button>
   </div>
 </section>
 
 </main>
 
 <nav class="bottom">
-  <button class="btn ghost" id="btnPrev">← Zurück</button>
-  <div class="dots" id="dots"></div>
-  <button class="btn" id="btnNext">Weiter →</button>
+  <div class="nwrap">
+    <button id="btnPrev">← Zurück</button>
+    <div class="dots" id="dots"></div>
+    <button class="primary" id="btnNext">Weiter →</button>
+  </div>
 </nav>
 <script>
-/* ============ Navigation ============ */
-const slides=[...document.querySelectorAll('.slide')];
-let cur=0;
-const dotsEl=document.getElementById('dots'), toc=document.getElementById('toc');
-slides.forEach((s,i)=>{
-  const d=document.createElement('div'); d.className='dot'+(i===0?' on':''); d.title=s.dataset.title;
-  d.onclick=()=>go(i); dotsEl.appendChild(d);
-  if(toc&&i>0){const a=document.createElement('a');a.href='#';
-    a.innerHTML='<b>'+i+'</b> '+s.dataset.title;
-    a.onclick=e=>{e.preventDefault();go(i)};toc.appendChild(a);}
+/* ---------- Navigation ---------- */
+var slides=[].slice.call(document.querySelectorAll('.slide')), cur=0;
+var dotsEl=document.getElementById('dots');
+slides.forEach(function(s,i){
+  var d=document.createElement('button'); d.className='dot'+(i===0?' on':''); d.title=s.dataset.title;
+  d.onclick=function(){go(i)}; dotsEl.appendChild(d);
 });
 function go(i){
   cur=Math.max(0,Math.min(slides.length-1,i));
-  slides.forEach((s,k)=>s.classList.toggle('active',k===cur));
-  [...dotsEl.children].forEach((d,k)=>{d.className='dot'+(k===cur?' on':'')+(k<cur?' seen':'');});
-  document.getElementById('progressBar').style.width=((cur)/(slides.length-1)*100)+'%';
+  slides.forEach(function(s,k){s.classList.toggle('active',k===cur)});
+  [].forEach.call(dotsEl.children,function(d,k){d.className='dot'+(k===cur?' on':'')+(k<cur?' seen':'')});
+  document.getElementById('progressBar').style.width=(cur/(slides.length-1)*100)+'%';
+  document.getElementById('step').textContent=(cur+1)+' / '+slides.length+' · '+slides[cur].dataset.title;
   window.scrollTo({top:0,behavior:'smooth'});
 }
-document.getElementById('btnPrev').onclick=()=>go(cur-1);
-document.getElementById('btnNext').onclick=()=>go(cur+1);
-document.addEventListener('keydown',e=>{
+document.getElementById('btnPrev').onclick=function(){go(cur-1)};
+document.getElementById('btnNext').onclick=function(){go(cur+1)};
+document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   if(e.key==='ArrowRight')go(cur+1); if(e.key==='ArrowLeft')go(cur-1);
 });
 
-/* ============ Animation-Manager & Helfer ============ */
-const anims={};
-(function loop(){for(const k in anims){try{anims[k].tick&&anims[k].tick();}catch(e){}} requestAnimationFrame(loop);})();
+/* ---------- Animation loop & helpers ---------- */
+var anims={};
+(function loop(){Object.keys(anims).forEach(function(k){try{anims[k]()}catch(e){}});requestAnimationFrame(loop);})();
 
-function fitCanvas(cv){
-  const r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
-  const W=Math.max(50,Math.round(r.width*dpr)), H=Math.max(50,Math.round(cv.clientHeight*dpr));
+function fit(cv){
+  if(!cv._set){var r0=cv.getBoundingClientRect();cv._h=r0.height>40?r0.height:240;cv._set=true;}
+  cv._set=false;
+  var r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  var W=Math.max(60,Math.round(r.width*dpr)), H=Math.max(60,Math.round(dpr*(r.height>40?r.height:240)));
   if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}
-  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
-  return {ctx,w:r.width,h:cv.clientHeight};
+  var ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,r.width,cv.height/dpr);
+  return {ctx:ctx,w:r.width,h:cv.height/dpr};
 }
-function circle(ctx,x,y,r,c){ctx.beginPath();ctx.arc(x,y,r,0,7);if(c){ctx.fillStyle=c;ctx.fill();}}
-function label(ctx,t,x,y,c,s){ctx.fillStyle=c||'#fff';ctx.font=(s||13)+'px Segoe UI';ctx.textAlign='center';ctx.fillText(t,x,y);}
-function arrow(ctx,x,y,len,col,lw){
-  const s=Math.sign(len)||1; ctx.strokeStyle=col;ctx.lineWidth=lw||3;
-  const L=Math.abs(len);
-  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+s*L,y);ctx.stroke();
-  const tip=x+s*L;
-  ctx.beginPath();ctx.moveTo(tip,y);ctx.lineTo(tip-11*s,y-7);ctx.lineTo(tip-11*s,y+7);ctx.closePath();
-  ctx.fillStyle=col;ctx.fill();
+function disc(c,x,y,r){c.beginPath();c.arc(x,y,r,0,7);c.fillStyle='#111';c.fill();}
+function ring(c,x,y,r,w){c.beginPath();c.arc(x,y,r,0,7);c.strokeStyle='#111';c.lineWidth=w||2;c.stroke();}
+function dashring(c,x,y,r){c.beginPath();c.arc(x,y,r,0,7);c.strokeStyle='#111';c.lineWidth=1.5;c.setLineDash([3,3]);c.stroke();c.setLineDash([]);}
+function txt(c,t,x,y,s,col){c.fillStyle=col||'#111';c.font=(s||13)+'px "Helvetica Neue",Helvetica,Arial,sans-serif';c.textAlign='center';c.fillText(t,x,y);}
+function txtS(c,t,x,y,s,col){c.fillStyle=col||'#fff';c.font=(s||13)+'px "Helvetica Neue",Helvetica,Arial,sans-serif';c.textAlign='center';c.fillText(t,x,y);}
+function line(c,x1,y1,x2,y2,w){c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.strokeStyle='#111';c.lineWidth=w||1.5;c.stroke();}
+function arrowH(c,x,y,len){
+  var s=Math.sign(len)||1, L=Math.abs(len);
+  line(c,x,y,x+s*L,y,2);
+  c.beginPath();c.moveTo(x+s*L,y);c.lineTo(x+s*L-9*s,y-5);c.lineTo(x+s*L-9*s,y+5);c.closePath();c.fillStyle='#111';c.fill();
 }
+function plusIcon(c,x,y,r){ disc(c,x,y,r); txtS(c,'+',x,y+r*0.35,Math.round(r*1.7)); }
+function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.round(r*1.6)); }
 
-/* ============ 1: Elektrische Ladung ============ */
+/* ---------- 01 Ladung ---------- */
 (function(){
-  const cv=document.getElementById('cvCharge'); let moved=0; // Elektronen von B nach A
+  var cv=document.getElementById('cvCharge'), moved=0;
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h);
-    const y0=h/2-70, boxH=96;
-    ctx.fillStyle='#2a3450'; ctx.fillRect(70,y0,220,boxH); ctx.fillRect(w-290,y0,220,boxH);
-    ctx.strokeStyle='#3b4a6e';ctx.strokeRect(70,y0,220,boxH); ctx.strokeRect(w-290,y0,220,boxH);
-    label(ctx,'Körper A',180,y0-14,'#9aa7b8',14); label(ctx,'Körper B',w-180,y0-14,'#9aa7b8',14);
-    // Protonen: immer je 8, unverändert
-    [110,w-250].forEach(function row(ox){
-      for(let i=0;i<8;i++){
-        const x=ox+(i%4)*30, y=y0+16+Math.floor(i/4)*26;
-        circle(ctx,x,y,7,'#ff6b6b'); label(ctx,'+',x,y+3.5,'#fff',10);
-      }
-    });
-    // Elektronen: A hat 8+moved (max 16), B hat 8-moved
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var bw=210, y0=26, bh=100, xA=30, xB=w-30-bw;
+    c.strokeStyle='#111'; c.lineWidth=1; c.strokeRect(xA,y0,bw,bh); c.strokeRect(xB,y0,bw,bh);
+    txt(c,'K\u00f6rper A',xA+bw/2,16,12,'#666'); txt(c,'K\u00f6rper B',xB+bw/2,16,12,'#666');
+    function row(ox,n,r,colFn){
+      for(var i=0;i<n;i++){var x=ox+14+(i%4)*((bw-28)/3), y=y0+20+Math.floor(i/4)*26; colFn(x,y,r);}
+    }
+    row(xA,8,7,plusIcon); row(xB,8,7,plusIcon);
     var eA=8+moved, eB=8-moved;
-    function drawElectrons(ox,n){
-      for(let i=0;i<n;i++){
-        const x=ox+(i%4)*30, y=y0+58+Math.floor(i/4)*26;
-        circle(ctx,x,y,7,'#4da3ff'); label(ctx,'\u2212',x,y+3.5,'#fff',10);
-      }
-    }
-    drawElectrons(110,Math.min(eA,16)); drawElectrons(w-250,Math.min(eB,16));
-    var dqA=eA-8, dqB=eB-8; // Q_A = dqA*e (Elektronenmangel -> +)
-    function fmt(d){return d>0?'+'+d+' e':(d<0?d+' e':'0 (neutral)');}
-    var cA=dqA>0?'#ff6b6b':(dqA<0?'#4da3ff':'#9aa7b8');
-    var cB=dqB>0?'#ff6b6b':(dqB<0?'#4da3ff':'#9aa7b8');
-    label(ctx,'Q_A = '+fmt(dqA),180,h-34,cA,14);
-    label(ctx,'Q_B = '+fmt(dqB),w-180,h-34,cB,14);
-    label(ctx,'Gesamt: Q_A + Q_B = 0  –  immer! (Ladungserhaltung)',w/2,h-12,'#42d392',12);
-    if(moved<8)label(ctx,'▼ Klick hier: 1 Elektron wandert von B nach A',w/2,h/2-2,'#9aa7b8',13);
-    else label(ctx,'alle übertragbaren Elektronen sind bei A',w/2,h/2-2,'#ffb347',13);
-    document.getElementById('chgInfo').textContent='Q_A = '+fmt(dqA).replace(' (neutral)','')+' · Q_B = '+fmt(dqB).replace(' (neutral)','');
+    row(xA,Math.min(eA,16),6,minusIcon); row(xB,Math.min(eB,16),6,minusIcon);
+    function fq(d){return d>0?'+ '+d:(d<0?'\u2212 '+(-d):'0')}
+    txt(c,'Q = '+fq(eA-8)+' e',xA+bw/2,y0+bh+22,13);
+    txt(c,'Q = '+fq(eB-8)+' e',xB+bw/2,y0+bh+22,13);
+    txt(c,'Q_A + Q_B = 0  (Ladungserhaltung)',w/2,h-14,12,'#666');
+    document.getElementById('chgInfo').textContent='A: '+fq(eA-8)+'e   B: '+fq(eB-8)+'e';
   }
-  cv.addEventListener('pointerdown',function(){if(moved<8){moved++;draw();}});
-  document.getElementById('chgRub').onclick=function(){if(moved<8){moved++;draw();}};
-  document.getElementById('chgReset').onclick=function(){moved=0;draw();};
-  anims.charge={tick:draw}; draw();
+  document.getElementById('chgRub').onclick=function(){if(moved<8){moved++;}};
+  document.getElementById('chgReset').onclick=function(){moved=0;};
+  anims.charge=draw;
 })();
 
-/* ============ 2: Coulomb ============ */
+/* ---------- 02 Coulomb ---------- */
 (function(){
-  const cv=document.getElementById('cvCoulomb'); let sign=-1;
-  const rEl=document.getElementById('coulR');
+  var cv=document.getElementById('cvCoulomb'), sign=-1, rEl=document.getElementById('coulR');
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h);
-    var r=+rEl.value, scale=(w-160)/380, y=h/2+30, x1=80, x2=80+r*scale;
-    ctx.strokeStyle='#2c3a55';ctx.beginPath();ctx.moveTo(50,y+62);ctx.lineTo(w-50,y+62);ctx.stroke();
-    var Frel=(200/r)*(200/r);
-    var len=Math.min(160,30+Frel*100);
-    if(sign<0){ // Anziehung: aufeinander zu
-      arrow(ctx,x1+30,y,len,'#42d392',4);
-      arrow(ctx,x2+30,y,-len,'#42d392',4);
-    }else{ // Abstoßung: voneinander weg
-      arrow(ctx,x1-6,y,-len,'#ffb347',4);
-      arrow(ctx,x2+66,y,len,'#ffb347',4);
-    }
-    circle(ctx,x1,y,24,'#ff6b6b'); label(ctx,'+',x1,y+8,'#fff',20);
-    circle(ctx,x2,y,24,sign<0?'#4da3ff':'#ff6b6b'); label(ctx,sign<0?'\u2212':'+',x2,y+8,'#fff',20);
-    label(ctx,sign<0?'wird angezogen':'wird abgesto\u00dfen',x1+90,y-36,sign<0?'#42d392':'#ffb347',12);
-    label(ctx,sign<0?'wird angezogen':'wird abgesto\u00dfen',x2-90,y-36,sign<0?'#42d392':'#ffb347',12);
-    label(ctx,'r = '+r+'   \u2192   F = '+Math.round(Frel*100)+' %  (bezogen auf r = 200)',w/2,34,'#e6edf3',15);
-    label(ctx,'F \u2231 ~ 1/r\u00b2   ·   r verdoppeln \u2192 nur noch \u00bc F!',w/2,h-16,'#9aa7b8',13);
-    document.getElementById('coulInfo').textContent='r='+r+' · F='+Math.round(Frel*100)+'%';
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var r=+rEl.value, scale=(w-140)/380, y=h/2+18, x1=70, x2=70+r*scale;
+    var Frel=(200/r)*(200/r), len=Math.min(150,25+Frel*95);
+    if(sign<0){ arrowH(c,x1+28,y,len); arrowH(c,x2+28,y,-len); }
+    else{ arrowH(c,x1-4,y,-len); arrowH(c,x2+60,y,len); }
+    plusIcon(c,x1,y,22); if(sign<0)minusIcon(c,x2,y,22); else plusIcon(c,x2,y,22);
+    txt(c,'r = '+r+'   F = '+Math.round(Frel*100)+' %',w/2,26,15);
+    txt(c,sign<0?'Anziehung':'Absto\u00dfung',w/2,h-16,12,'#666');
+    document.getElementById('coulInfo').textContent='F = '+Math.round(Frel*100)+'%';
   }
-  rEl.oninput=draw;
-  document.getElementById('coulFlip').onclick=function(){sign*=-1;draw();};
-  anims.coulomb={tick:draw}; draw();
+  rEl.oninput=function(){};
+  document.getElementById('coulFlip').onclick=function(){sign*=-1;};
+  anims.coulomb=draw;
 })();
 
-/* ============ 3: Reibungselektrische Reihe ============ */
+/* ---------- 03 Reibung ---------- */
 (function(){
-  const cv=document.getElementById('cvRub'); let tick=0, rub=0, fromA=true;
+  var cv=document.getElementById('cvRub'), tick=0, rub=0, fromA=true;
   var A=document.getElementById('matA'), B=document.getElementById('matB');
   document.getElementById('rubBtn').onclick=function(){
     var va=+A.value, vb=+B.value;
     var aN=A.options[A.selectedIndex].text, bN=B.options[B.selectedIndex].text;
     if(va===vb){rub=0;
-      document.getElementById('rubResult').innerHTML='Gleiches Material (gleiche Position in der Reihe) \u2013 kein nennenswerter Elektronen\u00fcbergang.';
+      document.getElementById('rubResult').textContent='Gleiche Position in der Reihe \u2013 kein Elektronen\u00fcbergang.';
       return;}
-    rub=100;
-    fromA=(va>vb);
-    if(fromA)
-      document.getElementById('rubResult').innerHTML='\ud83d\udca1 <b>'+aN+'</b> steht weiter oben \u2192 gibt Elektronen ab \u2192 l\u00e4dt sich <b style="color:#ff6b6b">positiv</b>. <b>'+bN+'</b> nimmt die Elektronen auf \u2192 <b style="color:#4da3ff">negativ</b>. Gesamt: 0 \u2013 Ladung ist erhalten! \u267b\ufe0f';
-    else
-      document.getElementById('rubResult').innerHTML='\ud83d\udca1 Hier gibt <b>'+bN+'</b> die Elektronen ab (steht weiter oben) \u2192 <b>'+bN+'</b> wird <b style="color:#ff6b6b">positiv</b>, <b>'+aN+'</b> wird <b style="color:#4da3ff">negativ</b>.';
+    rub=110; fromA=(va>vb);
+    document.getElementById('rubResult').innerHTML =
+      fromA
+      ? aN+' steht weiter oben \u2192 gibt Elektronen ab \u2192 l\u00e4dt sich <b>positiv</b>. '+bN+' nimmt sie auf \u2192 <b>negativ</b>. Die Gesamtladung bleibt null.'
+      : bN+' steht weiter oben \u2192 gibt Elektronen ab \u2192 l\u00e4dt sich <b>positiv</b>. '+aN+' wird <b>negativ</b>.';
   };
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h); tick++;
-    var y=h/2+6;
-    ctx.fillStyle='#3a2f2a';ctx.fillRect(w*0.16,y-40,w*0.26,80);
-    ctx.fillStyle='#23364d';ctx.fillRect(w*0.58,y-40,w*0.26,80);
-    label(ctx,A.options[A.selectedIndex].text,w*0.29,y-52,'#ffb347',13);
-    label(ctx,B.options[B.selectedIndex].text,w*0.71,y-52,'#ffb347',13);
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
+    var y=h/2;
+    c.strokeStyle='#111'; c.lineWidth=1;
+    c.strokeRect(w*0.12,y-34,w*0.3,68); c.strokeRect(w*0.58,y-34,w*0.3,68);
+    txt(c,A.options[A.selectedIndex].text,w*0.27,y-42,12,'#666');
+    txt(c,B.options[B.selectedIndex].text,w*0.73,y-42,12,'#666');
     if(rub>0){
       rub--;
       var x0=fromA?w*0.42:w*0.58, x1=fromA?w*0.58:w*0.42;
-      for(var i=0;i<5;i++){
-        var p=((tick*4+i*40)%100)/100;
-        var ex=x0+(x1-x0)*p, ey=y+Math.sin((tick+i*19)/8)*22;
-        circle(ctx,ex,ey,5,'#4da3ff'); label(ctx,'\u2212',ex,ey+3,'#fff',8);
+      for(var i=0;i<4;i++){
+        var p=((tick*3+i*46)%110)/110;
+        ring(c,x0+(x1-x0)*p,y+Math.sin((tick+i*20)/7)*16,4,1.5);
       }
-      label(ctx,fromA?'Elektronen \u2192':'\u2190 Elektronen',w/2,y-(34+Math.sin(tick/3)*12),'#4da3ff',13);
-    }else{
-      label(ctx,'(Stoffe w\u00e4hlen und \u201eReiben!\u201c dr\u00fccken)',w/2,y,'#9aa7b8',12);
+      line(c,x0,y-52,x1,y-52,1);
     }
   }
-  anims.rub={tick:draw};
+  anims.rub=draw;
 })();
 
-/* ============ 4: Feldlinien ============ */
+/* ---------- 04 Feld ---------- */
 (function(){
-  const cv=document.getElementById('cvField');
-  let charges=[{fx:0.34,q:1},{fx:0.66,q:-1}], drag=-1, H=0;
+  var cv=document.getElementById('cvField');
+  var charges=[{fx:0.34,q:1},{fx:0.66,q:-1}], drag=-1, HH=0;
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); H=h; ctx.clearRect(0,0,w,h);
-    var cs=charges.map(function(c){return {x:c.fx*w,y:h/2,q:c.q};});
-    function fieldAt(x,y){
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; HH=h; c.clearRect(0,0,w,h);
+    var cs=charges.map(function(q){return{x:q.fx*w,y:h/2,q:q.q}});
+    function E(x,y){
       var fx=0,fy=0;
-      for(var i=0;i<cs.length;i++){
-        var dx=x-cs[i].x, dy=y-cs[i].y;
-        var d2=Math.max(300,dx*dx+dy*dy), d=Math.sqrt(d2);
-        fx+=cs[i].q*dx/(d2*d)*1e5; fy+=cs[i].q*dy/(d2*d)*1e5;
-      }
-      return [fx,fy];
+      cs.forEach(function(s){var dx=x-s.x,dy=y-s.y,d2=Math.max(400,dx*dx+dy*dy),d=Math.sqrt(d2);
+        fx+=s.q*dx/(d2*d)*1e5; fy+=s.q*dy/(d2*d)*1e5;});
+      return[fx,fy];
     }
-    ctx.lineWidth=1.3;
-    for(var ci=0;ci<cs.length;ci++){
-      var c=cs[ci]; if(c.q<=0)continue;
-      for(var a=0;a<26;a++){
-        var x=c.x+26*Math.cos(a/26*2*Math.PI), y=c.y+26*Math.sin(a/26*2*Math.PI);
-        ctx.beginPath();ctx.moveTo(x,y);
-        for(var s=0;s<600;s++){
-          var f=fieldAt(x,y), m=Math.hypot(f[0],f[1])||1;
-          x+=f[0]/m*4; y+=f[1]/m*4;
+    cs.forEach(function(s){
+      if(s.q<=0)return;
+      for(var a=0;a<24;a++){
+        var x=s.x+24*Math.cos(a/24*2*Math.PI), y=s.y+24*Math.sin(a/24*2*Math.PI);
+        c.beginPath(); c.moveTo(x,y);
+        for(var k=0;k<600;k++){
+          var f2=E(x,y), m=Math.hypot(f2[0],f2[1])||1;
+          x+=f2[0]/m*4; y+=f2[1]/m*4;
           if(x<-40||x>w+40||y<-40||y>h+40)break;
-          ctx.lineTo(x,y);
+          c.lineTo(x,y);
           var hit=false;
-          for(var k=0;k<cs.length;k++) if(cs[k].q<0&&Math.hypot(x-cs[k].x,y-cs[k].y)<26){hit=true;break;}
+          cs.forEach(function(o){if(o.q<0&&Math.hypot(x-o.x,y-o.y)<25)hit=true;});
           if(hit)break;
         }
-        ctx.strokeStyle='rgba(255,150,120,.5)';ctx.stroke();
+        c.strokeStyle='rgba(17,17,17,.4)'; c.lineWidth=1; c.stroke();
       }
-    }
-    cs.forEach(function(c){
-      circle(ctx,c.x,c.y,22,c.q>0?'#ff6b6b':'#4da3ff');
-      label(ctx,c.q>0?'+':'\u2212',c.x,c.y+7,'#fff',22);
-      label(ctx,'zieh mich!',c.x,c.y+38,'#9aa7b8',11);
     });
+    cs.forEach(function(s){
+      if(s.q>0)plusIcon(c,s.x,s.y,22); else minusIcon(c,s.x,s.y,22);
+    });
+    txt(c,'ziehen zum Verschieben',w/2,16,11,'#666');
   }
-  function rel(e){var r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)};}
+  function rel(e){var r=cv.getBoundingClientRect();return{fx:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)};}
   cv.addEventListener('pointerdown',function(e){
     var p=rel(e);
-    for(var i=0;i<charges.length;i++){
-      if(Math.hypot((p.x-charges[i].fx)*cv.getBoundingClientRect().width, p.y-H/2)<32){drag=i;break;}
-    }
+    charges.forEach(function(q,i){ if(Math.hypot((p.fx-q.fx)*cv.getBoundingClientRect().width,p.y-HH/2)<32)drag=i; });
     if(drag>=0)cv.setPointerCapture(e.pointerId);
   });
   cv.addEventListener('pointermove',function(e){
-    if(drag<0)return;
-    var p=rel(e);
-    charges[drag].fx=Math.max(0.07,Math.min(0.93,p.x));
+    if(drag<0)return; var p=rel(e);
+    charges[drag].fx=Math.max(0.06,Math.min(0.94,p.fx));
   });
-  cv.addEventListener('pointerup',function(){drag=-1;});
-  document.getElementById('fieldPreset1').onclick=function(){charges=[{fx:0.34,q:1},{fx:0.66,q:-1}];};
-  document.getElementById('fieldPreset2').onclick=function(){charges=[{fx:0.34,q:1},{fx:0.66,q:1}];};
-  anims.field={tick:draw};
+  cv.addEventListener('pointerup',function(){drag=-1});
+  document.getElementById('fieldPreset1').onclick=function(){charges=[{fx:0.34,q:1},{fx:0.66,q:-1}]};
+  document.getElementById('fieldPreset2').onclick=function(){charges=[{fx:0.34,q:1},{fx:0.66,q:1}]};
+  anims.field=draw;
 })();
 
-/* ============ 5: Kondensator ============ */
+/* ---------- 05 Kondensator ---------- */
 (function(){
-  const cv=document.getElementById('cvCap'); let q=0, target=0, dis=false;
-  document.getElementById('capCharge').onclick=function(){target=100;dis=false;};
-  document.getElementById('capDischarge').onclick=function(){target=0;dis=true;};
+  var cv=document.getElementById('cvCap'), q=0, target=0, dis=false;
+  document.getElementById('capCharge').onclick=function(){target=100;dis=false};
+  document.getElementById('capDischarge').onclick=function(){target=0;dis=true};
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h);
-    q+=(target-q)*0.06;
-    var px=w/2, pw=Math.max(100,w*0.22), ph=h*0.5, top=h*0.3;
-    // Leitungen zur Quelle
-    ctx.strokeStyle='#8899bb';ctx.lineWidth=2;
-    ctx.beginPath();
-    ctx.moveTo(px-pw/2-6,top+ph/2);ctx.lineTo(px-pw/2-6,44);ctx.lineTo(px-pw/2-70,44);
-    ctx.moveTo(px+pw/2+6,top+ph/2);ctx.lineTo(px+pw/2+6,44);ctx.lineTo(px+pw/2+70,44);
-    ctx.stroke();
-    // Batteriesymbol oben
-    ctx.strokeStyle='#ffb347';ctx.lineWidth=5;
-    ctx.beginPath();ctx.moveTo(px-pw/2-70+8,36);ctx.lineTo(px-pw/2-70+40,36);ctx.stroke();
-    ctx.strokeStyle='#8899bb';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(px+pw/2+70-40,36);ctx.lineTo(px+pw/2+70-8,36);ctx.stroke();
-    label(ctx,dis&&q<5?'LED \u301f (leuchtet kurz!) \ud83d\udca1':'Spannungsquelle',px,20,dis&&q>5?'#ffb347':'#9aa7b8',12);
-    // Platten
-    ctx.fillStyle='#3b4a6e';
-    ctx.fillRect(px-pw/2-12,top,12,ph);
-    ctx.fillRect(px+pw/2,top,12,ph);
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    q+=(target-q)*0.05;
+    var px=w/2, pw=Math.max(90,w*0.24), ph=h*0.46, top=h*0.28;
+    c.globalAlpha=.35;
+    line(c,px-pw/2-16,top+ph/2,px-pw/2-16,34); line(c,px-pw/2-16,34,px+pw/2+16,34); line(c,px+pw/2+16,34,px+pw/2+16,top+ph/2);
+    c.globalAlpha=1;
+    line(c,px-pw/2-40,26,px-pw/2-12,26); line(c,px+pw/2+12,40,px+pw/2+40,40);
+    txt(c,dis?'Verbraucher (z. B. LED)':'Spannungsquelle',px,18,11,'#666');
+    line(c,px-pw/2-8,top,px-pw/2-8,top+ph,10);
+    line(c,px+pw/2+8,top,px+pw/2+8,top+ph,10);
     var n=Math.round(q/100*6);
     for(var i=0;i<n;i++){
-      var yy=top+16+i*(ph/6.4);
-      circle(ctx,px-pw/2-6,yy,7,'#ff6b6b'); label(ctx,'+',px-pw/2-6,yy+3,'#fff',11);
-      circle(ctx,px+pw/2+6,yy,7,'#4da3ff'); label(ctx,'\u2212',px+pw/2+6,yy+3,'#fff',11);
+      var yy=top+14+i*(ph/6);
+      plusIcon(c,px-pw/2-8,yy,6);
+      minusIcon(c,px+pw/2+8,yy,6);
     }
     if(q>3){
-      ctx.strokeStyle='rgba(255,179,71,'+(0.3+q/150)+')';
-      for(var k=0;k<5;k++){
-        var ly=top+20+k*(ph-40)/4;
-        arrow(ctx,px-pw/2+10,ly,pw-20,ctx.strokeStyle,2);
-      }
-      label(ctx,'E',px,top-12,'#ffb347',16);
+      for(var k=0;k<4;k++) line(c,px-pw/2+2,top+18+k*(ph-36)/3,px+pw/2-2,top+18+k*(ph-36)/3,1);
+      txt(c,'E',px,top-12,14);
     }
-    var pct=Math.round(q);
-    ctx.fillStyle='#232d42';ctx.fillRect(px-100,h-24,200,10);
-    ctx.fillStyle=pct>90?'#42d392':'#4da3ff';
-    ctx.fillRect(px-100,h-24,200*q/100,10);
-    label(ctx,'Ladung: '+pct+' %',px,h-32,'#e6edf3',12);
-    document.getElementById('capInfo').textContent='Ladung: '+pct+' %'+
-      (target===100?(pct>90?' \u00b7 voll geladen \u26a1':' \u00b7 l\u00e4dt\u2026 \u23f3'):
-       (pct<5?(dis?' \u00b7 entladen \ud83d\udc4c':' \u00b7 leer'):' \u00b7 gibt Ladung ab\u2026'));
+    var bw=Math.min(220,w*0.4);
+    line(c,px-bw/2,h-26,px+bw/2,h-26,1);
+    line(c,px-bw/2,h-24,px-bw/2+bw*q/100,h-24,4);
+    txt(c,Math.round(q)+' %',px,h-34,12,'#666');
+    document.getElementById('capInfo').textContent='Ladung '+Math.round(q)+' %';
   }
-  anims.cap={tick:draw};
+  anims.cap=draw;
 })();
 
-/* ============ 6a: Halbleiter-Temperatur ============ */
+/* ---------- 06 Halbleiter ---------- */
 (function(){
-  const cv=document.getElementById('cvSemi'); const tEl=document.getElementById('semiT');
-  let electrons=[], tick=0;
-  var N=8, M=4;
+  var cv=document.getElementById('cvSemi'), tEl=document.getElementById('semiT');
+  var els=[], tick=0, N=8, M=4;
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h); tick++;
-    var T=+tEl.value, tempC=Math.round(T*2-10);
-    var want=Math.round(T/100*18);
-    while(electrons.length<want){
-      electrons.push({x:0.08+Math.random()*0.84, y:0.2+Math.random()*0.62,
-        vx:(Math.random()-.5)*0.0018, vy:(Math.random()-.5)*0.0018,
-        hx:Math.floor(Math.random()*N), hy:Math.floor(Math.random()*M)});
-    }
-    while(electrons.length>want) electrons.pop();
-    var mx=w*0.08, my=h*0.18, gw=w*0.84, gh=h*0.64;
-    var sx=gw/(N-1), sy=gh/(M-1);
-    // Bindungen
-    ctx.strokeStyle='#3b4a6e';ctx.lineWidth=2;
-    for(var j=0;j<M;j++)for(var i2=0;i2<N;i2++){
-      if(i2<N-1){
-        ctx.beginPath();
-        ctx.moveTo(mx+i2*sx+14,my+j*sy);
-        ctx.lineTo(mx+(i2+1)*sx-14,my+j*sy);
-        ctx.stroke();
-      }
-    }
-    // Atome
-    for(var j2=0;j2<M;j2++)for(var i3=0;i3<N;i3++) circle(ctx,mx+i3*sx,my+j2*sy,13,'#c9563f');
-    // L\u00f6cher
-    electrons.forEach(function(e){
-      var hx=mx+e.hx*sx, hy=my+e.hy*sy;
-      ctx.beginPath();ctx.arc(hx,hy,10,0,7);ctx.strokeStyle='#ffd94a';ctx.lineWidth=3;ctx.stroke();
-      label(ctx,'+',hx,hy+4.5,'#ffd94a',13);
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
+    var T=+tEl.value, tempC=Math.round(T*2-10), want=Math.round(T/100*16);
+    while(els.length<want)
+      els.push({x:0.1+Math.random()*0.8,y:0.24+Math.random()*0.6,
+        vx:(Math.random()-.5)*0.0016,vy:(Math.random()-.5)*0.0016,
+        hx:Math.floor(Math.random()*N),hy:Math.floor(Math.random()*M)});
+    while(els.length>want)els.pop();
+    var mx=w*0.08, my=h*0.26, gw=w*0.84, gh=h*0.52, sx=gw/(N-1), sy=gh/(M-1);
+    c.globalAlpha=.5;
+    for(var j=0;j<M;j++)for(var i=0;i<N-1;i++) line(c,mx+i*sx+8,my+j*sy,mx+(i+1)*sx-8,my+j*sy,1);
+    c.globalAlpha=1;
+    for(var j2=0;j2<M;j2++)for(var i2=0;i2<N;i2++) disc(c,mx+i2*sx,my+j2*sy,9);
+    els.forEach(function(e){
+      dashring(c,mx+e.hx*sx,my+e.hy*sy,10);
+      txt(c,'+',mx+e.hx*sx,my+e.hy*sy+4,11);
     });
-    // Elektronen
-    electrons.forEach(function(e){
+    els.forEach(function(e){
       e.x+=e.vx; e.y+=e.vy;
-      if(e.x<0.04||e.x>0.96)e.vx*=-1; if(e.y<0.1||e.y>0.9)e.vy*=-1;
-      var ex=e.x*w, ey=e.y*h;
-      var hx=mx+e.hx*sx, hy=my+e.hy*sy;
-      if(Math.hypot(ex-hx,ey-hy)<16){ // Rekombination
+      if(e.x<0.04||e.x>0.96)e.vx*=-1; if(e.y<0.14||e.y>0.86)e.vy*=-1;
+      var ex=e.x*w, ey=e.y*h, hx=mx+e.hx*sx, hy=my+e.hy*sy;
+      if(Math.hypot(ex-hx,ey-hy)<15){
         e.hx=Math.floor(Math.random()*N); e.hy=Math.floor(Math.random()*M);
-        e.x=0.1+Math.random()*0.8; e.y=0.22+Math.random()*0.56;
+        e.x=0.12+Math.random()*0.76; e.y=0.26+Math.random()*0.5;
       }
-      circle(ctx,ex,ey,6,'#4da3ff'); label(ctx,'\u2212',ex,ey+3,'#fff',9);
+      ring(c,ex,ey,5,1.5); txt(c,'\u2212',ex,ey+3,9);
     });
-    label(ctx,'Silizium-Kristallgitter · T = '+tempC+' \u00b0C',w/2,16,'#9aa7b8',13);
-    document.getElementById('semiInfo').textContent=tempC+' \u00b0C · '+electrons.length+' Leitungselektronen';
+    txt(c,'T = '+tempC+' \u00b0C',w/2,16,12,'#666');
+    document.getElementById('semiInfo').textContent=els.length+' Leitungselektronen';
   }
-  tEl.oninput=draw; anims.semi={tick:draw}; draw();
+  anims.semi=draw;
 })();
 
-/* ============ 6b: Dotierung ============ */
+/* ---------- 06b Dotierung ---------- */
 (function(){
-  const cv=document.getElementById('cvDope'); let mode='none', tick=0;
+  var cv=document.getElementById('cvDope'), mode='none', tick=0;
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h); tick++;
-    var N=5,M=4, mx=w*0.1, my=h*0.24, gw=w*0.8, gh=h*0.5;
-    var sx=gw/(N-1), sy=gh/(M-1);
-    ctx.strokeStyle='#3b4a6e';ctx.lineWidth=2;
-    for(var j=0;j<M;j++)for(var i=0;i<N;i++){
-      if(i<N-1){
-        ctx.beginPath();
-        ctx.moveTo(mx+i*sx+15,my+j*sy);
-        ctx.lineTo(mx+(i+1)*sx-15,my+j*sy);
-        ctx.stroke();
-      }
-    }
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
+    var N=5,M=4, mx=w*0.1, my=h*0.16, gw=w*0.8, gh=h*0.58, sx=gw/(N-1), sy=gh/(M-1);
+    c.globalAlpha=.5;
+    for(var j=0;j<M;j++)for(var i=0;i<N-1;i++) line(c,mx+i*sx+10,my+j*sy,mx+(i+1)*sx-10,my+j*sy,1);
+    c.globalAlpha=1;
     var fx=mx+2*sx, fy=my+1*sy;
     for(var j2=0;j2<M;j2++)for(var i2=0;i2<N;i2++){
-      var foreign=(mode!=='none'&&j2===1&&i2===2);
       var x=mx+i2*sx, y=my+j2*sy;
-      circle(ctx,x,y,15,foreign?(mode==='n'?'#e0563f':'#b056c9'):'#c9563f');
-      label(ctx,foreign?(mode==='n'?'P':'B'):'Si',x,y+5,'#fff',12);
+      disc(c,x,y,10);
+      txtS(c,'Si',x,y+3.5,9);
     }
+    c.fillStyle='#fff'; c.beginPath(); c.arc(fx,fy,10,0,7); c.fill();
+    ring(c,fx,fy,10,2); txt(c,(mode==='n'?'P':mode==='p'?'B':'Si'),fx,fy+3.5,9);
     if(mode==='n'){
-      var ex=fx+40+Math.sin(tick/13)*12, ey=fy+Math.cos(tick/10)*14;
-      ctx.strokeStyle='#4da3ff';ctx.setLineDash([3,3]);
-      ctx.beginPath();ctx.moveTo(fx+16,fy);ctx.lineTo(ex-8,ey);ctx.stroke();ctx.setLineDash([]);
-      circle(ctx,ex,ey,8,'#4da3ff'); label(ctx,'\u2212',ex,ey+3.5,'#fff',11);
-      label(ctx,'5. Valenzelektron: frei beweglich!',fx+120,fy-36,'#4da3ff',14);
-      label(ctx,'\u2192 Elektronen\u00fcberschuss = n-Dotierung (negativ)',w/2,h-16,'#4da3ff',13);
+      var ex=fx+40+Math.sin(tick/14)*10, ey=fy+Math.cos(tick/11)*13;
+      c.globalAlpha=.6; line(c,fx+12,fy,ex-6,ey,1); c.globalAlpha=1;
+      ring(c,ex,ey,6,1.5); txt(c,'\u2212',ex,ey+3,10);
+      txt(c,'freies Elektron \u2192 Elektronen\u00fcberschuss (n)',w/2,h-16,12,'#666');
     }else if(mode==='p'){
-      var hx=fx+42, hy=fy-28;
-      ctx.beginPath();ctx.arc(hx,hy,10,0,7);ctx.strokeStyle='#ffd94a';ctx.lineWidth=3.5;ctx.stroke();
-      label(ctx,'+',hx,hy+4.5,'#ffd94a',14);
-      ctx.strokeStyle='#ffd94a';ctx.setLineDash([3,3]);
-      ctx.beginPath();ctx.moveTo(fx+15,fy-5);ctx.lineTo(hx-10,hy+3);ctx.stroke();ctx.setLineDash([]);
-      label(ctx,'fehlende Bindung = Loch (wirkt positiv)',fx+150,fy-36,'#ffd94a',14);
-      label(ctx,'\u2192 Elektronenmangel = p-Dotierung (positiv)',w/2,h-16,'#ffd94a',13);
+      var hx2=fx+42, hy2=fy-26;
+      dashring(c,hx2,hy2,9); txt(c,'+',hx2,hy2+4,11);
+      txt(c,'fehlende Bindung \u2192 Loch / Elektronenmangel (p)',w/2,h-16,12,'#666');
     }else{
-      label(ctx,'alle 4 Valenzelektronen fest gebunden \u2192 nichts ist frei \u2192 (fast) kein Strom',w/2,h-16,'#9aa7b8',13);
+      txt(c,'alle 4 Valenzelektronen fest gebunden \u2013 nichts ist frei',w/2,h-16,12,'#666');
     }
   }
-  document.getElementById('dopeNone').onclick=function(){mode='none';document.getElementById('dopeInfo').textContent='undotiert';draw();};
-  document.getElementById('dopeN').onclick=function(){mode='n';document.getElementById('dopeInfo').textContent='n-Dotierung';draw();};
-  document.getElementById('dopeP').onclick=function(){mode='p';document.getElementById('dopeInfo').textContent='p-Dotierung';draw();};
-  anims.dope={tick:draw}; draw();
+  document.getElementById('dopeNone').onclick=function(){mode='none';document.getElementById('dopeInfo').textContent='undotiert'};
+  document.getElementById('dopeN').onclick=function(){mode='n';document.getElementById('dopeInfo').textContent='n-dotiert'};
+  document.getElementById('dopeP').onclick=function(){mode='p';document.getElementById('dopeInfo').textContent='p-dotiert'};
+  anims.dope=draw;
 })();
 
-/* ============ 7: Transistor ============ */
+/* ---------- 07 Transistor ---------- */
 (function(){
-  const cv=document.getElementById('cvTrans'); const uEl=document.getElementById('trU');
+  var cv=document.getElementById('cvTrans'), uEl=document.getElementById('trU');
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h);
-    var U=+uEl.value, on=(U>0.7);
-    var gain=Math.min(100,(U-0.7)*22); if(gain<0)gain=0;
-    var cw=w*0.24, ch=h*0.55, cy=h*0.38;
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var U=+uEl.value, on=U>0.7;
+    var gain=Math.max(0,Math.min(100,(U-0.7)*22));
+    var cw=w*0.24, ch=h*0.46, cy=h*0.42;
     var exX=w/2-cw*1.5, bX=w/2-cw/2, cX=w/2+cw/2;
-    var layers=[[exX,'n \u00b7 Emitter (E)','#173a5e'],[bX,'p \u00b7 Basis (B)','#5e1723'],[cX,'n \u00b7 Kollektor (C)','#173a5e']];
-    layers.forEach(function(L){
-      ctx.fillStyle=L[2];ctx.fillRect(L[0],cy-ch/2,cw,ch);
-      ctx.strokeStyle='#3b4a6e';ctx.strokeRect(L[0],cy-ch/2,cw,ch);
-      ctx.save();ctx.translate(L[0]+cw/2,cy);ctx.rotate(-Math.PI/2);
-      label(ctx,L[1],0,4,'#e6edf3',12);ctx.restore();
+    [[exX,'n \u00b7 Emitter'],[bX,'p \u00b7 Basis'],[cX,'n \u00b7 Kollektor']].forEach(function(L){
+      if(L[0]===bX){c.fillStyle='#111';c.fillRect(L[0],cy-ch/2,cw,ch);}
+      else{c.strokeStyle='#111';c.lineWidth=1;c.strokeRect(L[0],cy-ch/2,cw,ch);}
+      c.save(); c.translate(L[0]+cw/2,cy); c.rotate(-Math.PI/2);
+      if(L[0]===bX)txtS(c,L[1],0,4,12); else txt(c,L[1],0,4,12);
+      c.restore();
     });
-    ctx.strokeStyle='#8899bb';ctx.lineWidth=2;
     var bx=bX+cw/2, exm=exX+cw/2, cxm=cX+cw/2;
-    // Emitter-Kollektor-Kreis (oben herum, rechts vorbei)
-    ctx.beginPath();
-    ctx.moveTo(exm,cy+ch/2);ctx.lineTo(exm,h-56);ctx.lineTo(250,h-56);
-    ctx.moveTo(cxm,cy-ch/2);ctx.lineTo(cxm,54);ctx.lineTo(w-50,54);
-    ctx.lineTo(w-50,h-56);ctx.lineTo(250,h-56);
-    ctx.stroke();
-    // Basisleitung (unten zur Batterie)
-    ctx.beginPath();ctx.moveTo(bx,cy+ch/2);ctx.lineTo(bx,h-34);ctx.lineTo(150,h-34);ctx.lineTo(150,h-56);ctx.stroke();
-    // Batterie im Basiskreis
-    ctx.strokeStyle='#ffb347';ctx.lineWidth=5;
-    ctx.beginPath();ctx.moveTo(180,h-64);ctx.lineTo(216,h-64);ctx.stroke();
-    ctx.strokeStyle='#8899bb';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(190,h-48);ctx.lineTo(206,h-48);ctx.stroke();
-    label(ctx,'U\u1D05\u2091 = '+U.toFixed(1)+' V',bx+92,h-44,on?'#42d392':'#9aa7b8',13);
-    label(ctx,'Schwellenspannung \u2248 0,7 V',w/2,h-14,'#ffb347',12);
-    // Basisstrom (animierte Punkte)
+    c.globalAlpha=.35;
+    line(c,exm,cy+ch/2,exm,h-40); line(c,exm,h-40,cxm,h-40); line(c,cxm,h-40,cxm,cy+ch/2);
+    line(c,bx,cy+ch/2,bx,h-56); line(c,bx,h-56,exm-90,h-56); line(c,exm-90,h-56,exm-90,h-40);
+    c.globalAlpha=1;
+    line(c,exm-70,h-62,exm-40,h-62,4); line(c,exm-64,h-50,exm-46,h-50,1.5);
+    txt(c,'U\u1D05\u2091 = '+U.toFixed(1)+' V',w/2,h-18,12);
     if(on){
-      var t=performance.now()/280;
+      var t=performance.now()/300;
       for(var k=0;k<4;k++){
         var p=((t+k/4)%1);
-        var x=150+(bx-150)*p;
-        circle(ctx,x,h-34,5,'#ff9a9a');
+        ring(c,exm-90+(bx-exm+90)*p,h-56,4,1.5);
       }
-    }
-    // Kollektorstrom-Balken
-    var barX=w-42, barTop=66, barH=h-140;
-    ctx.fillStyle='#232d42';ctx.fillRect(barX,barTop,14,barH);
-    if(on){
-      var hh=barH*gain/100;
-      ctx.fillStyle='#42d392';ctx.fillRect(barX,barTop+barH-hh,14,hh);
-      label(ctx,'I_C',barX-4,barTop+16,'#42d392',14);
-      label(ctx,'gro\u00dfer Strom',barX-30,barTop+32,'#42d392',11);
+      var barX=w-40, barT=cy-ch/2, barB=cy+ch/2, hh=(barB-barT)*gain/100;
+      c.fillStyle='#111'; c.fillRect(barX,barB-hh,14,hh);
+      txt(c,'I\u1D9C',barX,cy,13);
+      txt(c,on?'offen':'gesperrt',cxm+w*0.02,cy-ch/2-10,11,'#666');
     }else{
-      label(ctx,'kein',barX-24,barTop+20,'#9aa7b8',11);
-      label(ctx,'Strom',barX-24,barTop+34,'#9aa7b8',11);
+      txt(c,'gesperrt',cxm+w*0.02,cy-ch/2-10,11,'#666');
     }
     var info;
-    if(on) info=U.toFixed(1)+' V > 0,7 V \u2192 LEITET! Verst\u00e4rkung: '+Math.round(gain)+'%';
-    else if(U>0.05) info=U.toFixed(1)+' V < 0,7 V \u2192 GESPERRT (unter Schwelle)';
-    else info='0,0 V \u2192 GESPERRT (kein Basisstrom)';
+    if(on) info=U.toFixed(1)+' V > 0,7 V \u2192 leitet';
+    else if(U>0.05) info=U.toFixed(1)+' V < 0,7 V \u2192 gesperrt';
+    else info='gesperrt';
     document.getElementById('trInfo').textContent=info;
   }
-  uEl.oninput=draw; anims.trans={tick:draw}; draw();
+  anims.trans=draw;
 })();
 
-/* ============ 8a: Ferromagnetismus-Spiel ============ */
+/* ---------- 08 Ferromagnetismus ---------- */
 (function(){
-  var items=[{n:'Eisen \ud83d\udd27',f:true},{n:'Kupfer \ud83e\udee2',f:false},{n:'Nickel \ud83d\udd29',f:true},{n:'Cobalt \ud83d\udc8e',f:true},
-    {n:'Aluminium \u2699\ufe0f',f:false},{n:'Plastik \ud83e\udd64',f:false},{n:'Stahl (Fe-Legierung) \ud83e\udd42',f:true},{n:'Holz \ud83e\uddf5',f:false}];
-  items.sort(function(){return Math.random()-.5;});
+  var items=[{n:'Eisen',f:true},{n:'Kupfer',f:false},{n:'Nickel',f:true},{n:'Cobalt',f:true},
+    {n:'Aluminium',f:false},{n:'Plastik',f:false},{n:'Stahl',f:true},{n:'Holz',f:false}];
+  items.sort(function(){return Math.random()-.5});
   var g=document.getElementById('ferroGrid'), msg=document.getElementById('ferroMsg');
-  var found=0, correct=0;
+  var found=0, cor=0;
   items.forEach(function(it){
     var d=document.createElement('div'); d.className='opt'; d.textContent=it.n;
     d.onclick=function(){
       if(d.classList.contains('correct')||d.classList.contains('wrong'))return;
       found++;
-      var m;
-      if(it.f){d.classList.add('correct');correct++;
-        m='<b style="color:var(--good)">Richtig!</b> Ferromagnetisch: wird angezogen <i>und</i> dabei selbst magnetisiert. ';}
-      else{d.classList.add('wrong');
-        m='<b style="color:var(--bad)">Nicht ferromagnetisch.</b> Magnete ignorieren diesen Stoff praktisch. ';}
+      if(it.f){d.classList.add('correct');cor++;}
+      else d.classList.add('wrong');
       if(found===items.length)
-        m+=' Fertig! ('+correct+'/'+items.length+' richtig) \u2192 Merke: <b>Eisen, Nickel, Cobalt</b> + deren Legierungen (z. B. Stahl) sind ferromagnetisch.';
-      else m+='('+found+'/'+items.length+')';
-      msg.innerHTML=m;
+        msg.innerHTML=cor+' / '+items.length+' richtig. Ferromagnetisch: <b>Eisen, Nickel, Cobalt</b> (und Legierungen wie Stahl).';
     };
     g.appendChild(d);
   });
 })();
 
-/* ============ 8b: Magnete ============ */
+/* ---------- 08b Magnete ---------- */
 (function(){
-  const cv=document.getElementById('cvMag'); let lp=1;
-  document.getElementById('magFlip').onclick=function(){lp*=-1;draw();};
+  var cv=document.getElementById('cvMag'), lp=1;
+  document.getElementById('magFlip').onclick=function(){lp*=-1};
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h);
-    var y=h/2+8, x1=w*0.26, x2=w*0.74, mw=120, mh=56;
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var y=h/2+4, x1=w*0.27, x2=w*0.73, mw=110, mh=52;
     function magnet(x,pole){
       var l=pole>0?'N':'S', r=pole>0?'S':'N';
-      ctx.fillStyle=pole>0?'#c9563f':'#4a6fa5'; ctx.fillRect(x-mw/2,y-mh/2,mw/2,mh);
-      ctx.fillStyle=pole>0?'#4a6fa5':'#c9563f'; ctx.fillRect(x,y-mh/2,mw/2,mh);
-      label(ctx,l,x-mw/4,y+8,'#fff',22); label(ctx,r,x+mw/4,y+8,'#fff',22);
-      return {l:l,r:r};
+      c.strokeStyle='#111'; c.lineWidth=1; c.strokeRect(x-mw/2,y-mh/2,mw,mh);
+      line(c,x,y-mh/2,x,y+mh/2,1);
+      txt(c,l,x-mw/4,y+5,16); txt(c,r,x+mw/4,y+5,16);
     }
-    var a=magnet(x1,lp), b=magnet(x2,1);
-    var attract=(a.r!==b.l);
-    ctx.lineWidth=1.6;
-    ctx.strokeStyle=attract?'rgba(66,211,146,.7)':'rgba(255,107,107,.7)';
+    magnet(x1,lp); magnet(x2,1);
+    var aR=lp>0?'S':'N', bL='N';
+    var attract=aR!==bL;
+    c.globalAlpha=.45;
     for(var i=-2;i<=2;i++){
-      var off=i*13;
-      ctx.beginPath();
-      ctx.moveTo(x1+mw/2,y+off);
-      ctx.quadraticCurveTo((x1+x2)/2,y+off*(attract?2.0:3.6),x2-mw/2,y+off);
-      ctx.stroke();
+      var off=i*12;
+      c.beginPath(); c.moveTo(x1+mw/2,y+off);
+      c.quadraticCurveTo((x1+x2)/2,y+off*(attract?1.8:3.4),x2-mw/2,y+off);
+      c.stroke();
     }
-    var col=attract?'#42d392':'#ff6b6b', dir=attract?1:-1;
-    arrow(ctx,x1+mw/2+26,y-72,dir*46,col,4);
-    arrow(ctx,x2-mw/2-26,y-72,-dir*46,col,4);
-    label(ctx,attract?'N\u2013S: ANZIEHUNG \ud83e\udd1d':'N\u2013N: ABSTOSSUNG \ud83d\udd25',w/2,h-18,col,15);
-    label(ctx,'Pfeile = Bewegungsrichtung · Linien = Magnetfeld (au\u00dfen immer N \u2192 S)',w/2,24,'#9aa7b8',12);
-    document.getElementById('magInfo').textContent=a.r+' und '+b.l+(attract?' \u2192 Anziehung \ud83e\udd1d':' \u2192 Absto\u00dfung \ud83d\udd25');
+    c.globalAlpha=1;
+    var dir=attract?1:-1;
+    arrowH(c,x1+mw/2+16,y-70,dir*40);
+    arrowH(c,x2-mw/2-16,y-70,-dir*40);
+    txt(c,attract?'Anziehung':'Absto\u00dfung',w/2,h-16,13);
+    document.getElementById('magInfo').textContent=attract?'S \u00b7 N \u2192 Anziehung':'N \u00b7 N \u2192 Absto\u00dfung';
   }
-  anims.mag={tick:draw}; draw();
+  anims.mag=draw;
 })();
 
-/* ============ 9a: Spule / Elektromagnet ============ */
+/* ---------- 09 Spule ---------- */
 (function(){
-  const cv=document.getElementById('cvCoil'); const iEl=document.getElementById('coilI'); let tick=0;
+  var cv=document.getElementById('cvCoil'), iEl=document.getElementById('coilI'), tick=0;
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h); tick++;
-    var I=+iEl.value/100, cy=h/2+6;
-    var sx=w*0.36, sw=w*0.28;
-    ctx.strokeStyle='#8899bb';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(40,cy);ctx.lineTo(sx,cy);ctx.moveTo(sx+sw,cy);ctx.lineTo(w-40,cy);ctx.stroke();
-    // Batterie links
-    ctx.strokeStyle='#ffb347';ctx.lineWidth=5;
-    ctx.beginPath();ctx.moveTo(46,cy-28);ctx.lineTo(74,cy-28);ctx.stroke();
-    ctx.strokeStyle='#8899bb';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(54,cy-16);ctx.lineTo(66,cy-16);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(60,cy);ctx.lineTo(60,cy-28);ctx.moveTo(60,cy-16);ctx.lineTo(60,cy);ctx.stroke();
-    // Windungen
-    ctx.strokeStyle='#c9b08a';ctx.lineWidth=3;
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
+    var I=+iEl.value/100, cy=h/2;
+    var sx=w*0.34, sw=w*0.3;
+    c.globalAlpha=.35;
+    line(c,30,cy,sx,cy); line(c,sx+sw,cy,w-30,cy);
+    line(c,44,cy-4,44,cy+4,2); line(c,58,cy-10,58,cy+10,2);
+    c.globalAlpha=1;
     for(var i=0;i<6;i++){
       var x=sx+sw*(i+0.5)/6;
-      ctx.beginPath();ctx.ellipse(x,cy,8,32,0,0,7);ctx.stroke();
+      c.beginPath(); c.ellipse(x,cy,7,28,0,0,7); c.strokeStyle='#111'; c.lineWidth=1.5; c.stroke();
     }
-    // Strom-Punkte
-    for(var k=0;k<9;k++){
-      var p=((tick*(0.4+I*1.8)+k*30)%270)/270;
-      if(p<0.2) circle(ctx,40+(sx-40)*(p/0.2),cy,4,'#4da3ff');
-      else if(p<0.8){var u=(p-0.2)/0.6; circle(ctx,sx+sw*u,cy+Math.sin(u*36)*24,4,'#4da3ff');}
-      else circle(ctx,sx+sw+(w-40-sx-sw)*((p-0.8)/0.2),cy,4,'#4da3ff');
+    for(var k=0;k<8;k++){
+      var p=((tick*(0.3+I*1.6)+k*30)%240)/240;
+      var x;
+      if(p<0.25){x=30+(sx-30)*(p/0.25); ring(c,x,cy,3,1.2);}
+      else if(p<0.75){var u=(p-0.25)/0.5; ring(c,sx+sw*u,cy+Math.sin(u*34)*20,3,1.2);}
+      else{ring(c,sx+sw+(w-30-sx-sw)*((p-0.75)/0.25),cy,3,1.2);}
     }
     var cx=sx+sw/2;
     if(I>0.02){
-      for(var m2=1;m2<=4;m2++){
-        ctx.strokeStyle='rgba(255,140,120,'+(0.12+I*0.5)+')';ctx.lineWidth=1.5;
-        ctx.beginPath();ctx.ellipse(cx,cy,sw*0.55+m2*26*I+34,34+m2*13*I+14,0,0,7);ctx.stroke();
+      for(var m=1;m<=3;m++){
+        c.globalAlpha=.3;
+        c.beginPath(); c.ellipse(cx,cy,sw*0.5+m*30*I+36,30+m*14*I+10,0,0,7); c.stroke();
+        c.globalAlpha=1;
       }
-      label(ctx,'N',cx-sw/2-40*I-64,cy-2,'#ff6b6b',16);
-      label(ctx,'S',cx+sw/2+40*I+64,cy-2,'#4da3ff',16);
+      txt(c,'N',cx-sw/2-46*I-54,cy+4,14); txt(c,'S',cx+sw/2+46*I+54,cy+4,14);
     }
-    label(ctx,'Elektromagnet = stromdurchflossene Spule',w/2,18,'#9aa7b8',13);
-    document.getElementById('coilInfo').textContent='I = '+(I*5).toFixed(1)+' A · '+
-      (I<0.03?'Magnet AUS':(I<0.5?'schwaches Feld \ud83e\uddf2':'starkes Feld! \ud83e\uddf2\u200d\ud83d\udd25'));
+    document.getElementById('coilInfo').textContent='I = '+(I*5).toFixed(1)+' A'+(I<0.03?' \u00b7 kein Feld':'');
   }
-  iEl.oninput=draw; anims.coil={tick:draw}; draw();
+  anims.coil=draw;
 })();
 
-/* ============ 9b: Lorentzkraft ============ */
+/* ---------- 09b Lorentzkraft ---------- */
 (function(){
-  const cv=document.getElementById('cvLorenz'); let flip=1, tick=0;
-  document.getElementById('lorFlip').onclick=function(){flip*=-1;};
-  function pathY(x,h,fl){
+  var cv=document.getElementById('cvLorenz'), flip=1, tick=0;
+  document.getElementById('lorFlip').onclick=function(){flip*=-1};
+  function py(x,h){
     var y=h/2;
-    if(x>60){var d=x-60; y=h/2-fl*d*d*0.0021;}
-    return Math.min(h-44,Math.max(40,y));
+    if(x>50){var d=x-50; y=h/2-flip*d*d*0.0019;}
+    return Math.min(h-14,Math.max(14,y));
   }
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h); tick++;
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
     var top=flip>0?'S':'N', bot=flip>0?'N':'S';
-    ctx.fillStyle=flip>0?'#4a6fa5':'#c9563f'; ctx.fillRect(0,0,w,30); label(ctx,top,26,21,'#fff',16);
-    ctx.fillStyle=flip>0?'#c9563f':'#4a6fa5'; ctx.fillRect(0,h-30,w,30); label(ctx,bot,26,h-11,'#fff',16);
-    for(var k=0;k<3;k++){
-      ctx.beginPath();
-      for(var x=0;x<=w;x+=6){
-        var y=pathY(x,h,flip);
-        if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
-      }
-      ctx.strokeStyle='rgba(66,211,146,'+(0.2+k*0.14)+')';ctx.lineWidth=2;ctx.stroke();
+    line(c,0,10,w,10,1); txt(c,top+' \u00b7 \u00b7 \u00b7',w-40,15,10,'#666');
+    line(c,0,h-10,w,h-10,1); txt(c,bot+' \u00b7 \u00b7 \u00b7',w-40,h-3,10,'#666');
+    for(var k=0;k<2;k++){
+      c.beginPath();
+      for(var x=0;x<=w;x+=5){var y=py(x,h); if(x===0)c.moveTo(x,y);else c.lineTo(x,y);}
+      c.globalAlpha=.35; c.stroke(); c.globalAlpha=1;
     }
-    for(var p2=0;p2<4;p2++){
-      var xp=((tick*2.4+p2*(w/4))%(w+80))-40;
-      var yp=pathY(xp,h,flip);
-      circle(ctx,xp,yp,7,'#42d392'); label(ctx,'e\u207b',xp,yp-13,'#42d392',10);
+    for(var p=0;p<3;p++){
+      var xp=((tick*2+p*(w/3))%(w+60))-30;
+      ring(c,xp,py(xp,h),4,1.5);
     }
-    label(ctx,'Ablenkung senkrecht zur Flugrichtung = Lorentzkraft \ud83d\udd00',w/2,h/2+6,'#e6edf3',13);
-    document.getElementById('lorInfo').textContent='N '+(flip>0?'unten':'oben')+' \u2192 Ablenkung nach '+(flip>0?'oben':'unten');
+    txt(c,'Ablenkung senkrecht zur Bewegung',w/2,h/2,12,'#666');
+    document.getElementById('lorInfo').textContent='Feld '+(flip>0?'S oben':'N oben');
   }
-  anims.lor={tick:draw};
+  anims.lor=draw;
 })();
 
-/* ============ 10: Elektromotor ============ */
+/* ---------- 10 Motor ---------- */
 (function(){
-  const cv=document.getElementById('cvMotor'); let ang=0, comm=true, speed=0.6;
-  const sEl=document.getElementById('motSpeed');
-  sEl.oninput=function(){speed=+sEl.value/100;};
+  var cv=document.getElementById('cvMotor'), ang=0, comm=true, speed=0.6;
+  var sEl=document.getElementById('motSpeed');
+  sEl.oninput=function(){speed=+sEl.value/100};
   document.getElementById('motComm').onclick=function(){
     comm=!comm;
-    this.textContent=comm?'Kommutator AUS \u23f8':'Kommutator AN \u25b6';
+    this.textContent=comm?'Kommutator AUS':'Kommutator AN';
   };
   function draw(){
-    const {ctx,w,h}=fitCanvas(cv); ctx.clearRect(0,0,w,h);
-    var cx=w/2, cy=h/2, R=Math.min(w,h)*0.32;
-    // Statoren
-    ctx.fillStyle='#c9563f';ctx.fillRect(cx-R-80,cy-44,56,88);
-    ctx.fillStyle='#4a6fa5';ctx.fillRect(cx+R+24,cy-44,56,88);
-    label(ctx,'S',cx-R-52,cy+7,'#fff',20); label(ctx,'N',cx+R+52,cy+7,'#fff',20);
-    label(ctx,'Stator',cx-R-52,cy-54,'#9aa7b8',11);
-    label(ctx,'Stator',cx+R+52,cy-54,'#9aa7b8',11);
-    // Rotor
-    ctx.save();ctx.translate(cx,cy);ctx.rotate(ang);
-    ctx.fillStyle='#3b4a6e';ctx.fillRect(-R,-16,R*2,32);
-    ctx.fillStyle='#ff6b6b';ctx.fillRect(R-24,-16,24,32); label(ctx,'N',R-12,5,'#fff',15);
-    ctx.fillStyle='#4da3ff';ctx.fillRect(-R,-16,24,32); label(ctx,'S',-R+12,5,'#fff',15);
-    ctx.restore();
-    // Kommutator
-    ctx.beginPath();ctx.arc(cx,cy,34,0,7);ctx.fillStyle='#222c42';ctx.fill();ctx.strokeStyle='#8899bb';ctx.stroke();
-    ctx.save();ctx.translate(cx,cy);ctx.rotate(ang);
-    ctx.strokeStyle='#ffb347';ctx.lineWidth=4;
-    ctx.beginPath();ctx.moveTo(0,-30);ctx.lineTo(0,30);ctx.stroke();ctx.restore();
-    label(ctx,'Kommutator',cx,cy+3,'#ffb347',9);
-    // B\u00fcrsten
-    ctx.fillStyle='#9aa7b8';
-    ctx.fillRect(cx-46,cy+52,14,22); ctx.fillRect(cx+32,cy+52,14,22);
-    label(ctx,'Schleifkontakte (B\u00fcrsten)',cx,cy+92,'#9aa7b8',11);
-    label(ctx,'Der Nordpol des Rotors wird zum S\u00fcdpol des Stators gezogen \u2192 Drehung',w/2,18,'#e6edf3',12);
+    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var cx=w/2, cy=h/2, R=Math.min(w,h)*0.34;
+    c.strokeStyle='#111'; c.lineWidth=1;
+    c.strokeRect(cx-R-64,cy-40,44,80); txt(c,'S',cx-R-42,cy+5,15);
+    c.strokeRect(cx+R+20,cy-40,44,80); txt(c,'N',cx+R+42,cy+5,15);
+    txt(c,'Stator',cx-R-42,cy-48,10,'#666'); txt(c,'Stator',cx+R+42,cy-48,10,'#666');
+    c.save(); c.translate(cx,cy); c.rotate(ang);
+    line(c,-R,0,R,0,6);
+    disc(c,R-14,0,10); txtS(c,'N',R-14,4,11);
+    disc(c,-R+14,0,10); txtS(c,'S',-R+14,4,11);
+    c.restore();
+    c.beginPath(); c.arc(cx,cy,26,0,7); c.fillStyle='#fff'; c.fill(); c.strokeStyle='#111'; c.stroke();
+    c.save(); c.translate(cx,cy); c.rotate(ang);
+    line(c,0,-22,0,22,3);
+    c.restore();
+    txt(c,'Kommutator',cx,cy+40,9,'#666');
+    line(c,cx-36,cy+34,cx-20,cy+34,3); line(c,cx+20,cy+34,cx+36,cy+34,3);
+    txt(c,'B\u00fcrsten',cx,cy+52,9,'#666');
     if(comm){ ang+=0.02+speed*0.06; }
     else{
-      // ohne Umpolung: Rotor wandert zur n\u00e4chsten Ruhelage (N-Ende beim S-Stator) und bleibt dort
-      var rest=(Math.round((ang-0.6)/Math.PI))*Math.PI+0.6;
+      var rest=Math.round((ang-0.55)/Math.PI)*Math.PI+0.55;
       var diff=rest-ang;
-      if(Math.abs(diff)>0.004) ang+=Math.sign(diff)*0.025;
+      if(Math.abs(diff)>0.004)ang+=Math.sign(diff)*0.03;
     }
-    document.getElementById('motInfo').textContent=comm?
-      ('rotiert\u2026 \ud83d\udd04 '+Math.round(speed*100)+'%'):
-      'steckt fest: Pole ziehen sich nur an \u2013 ohne Umpolung keine Weiterdrehung!';
+    document.getElementById('motInfo').textContent=
+      comm?'rotiert':'ohne Umpolung: Rotor bleibt in der Anziehungsstellung stecken';
   }
-  anims.motor={tick:draw};
+  anims.motor=draw;
 })();
 
-/* ============ 11: Quiz ============ */
+/* ---------- 11 Quiz ---------- */
 (function(){
   var qs=[
    {q:'Verdoppelt man den Abstand zwischen zwei Ladungen, dann\u2026',
-    o:['verdoppelt sich die Kraft.','ist die Kraft nur noch \u00bc so gro\u00df.','ist die Kraft halb so gro\u00df.','bleibt die Kraft gleich.'],c:1,
-    e:'Coulomb: Die Kraft nimmt mit dem Quadrat des Abstands ab (1/r\u00b2): 2\u00d7 Abstand \u2192 \u00bc Kraft.'},
-   {q:'Ein K\u00f6rper mit Elektronen\u00fcberschuss ist\u2026',o:['positiv geladen','neutral','negativ geladen','ferromagnetisch'],c:2,
-    e:'Mehr Elektronen (\u2212) als Protonen (+) \u2192 der K\u00f6rper ist negativ geladen.'},
+    o:['verdoppelt sich die Kraft','ist die Kraft nur noch \u00bc so gro\u00df.','ist die Kraft halb so gro\u00df.','bleibt die Kraft gleich.'],c:1,
+    e:'Die Kraft nimmt mit dem Quadrat des Abstands ab: doppelter Abstand \u2192 \u00fc der Kraft.'},
+   {q:'Ein K\u00f6rper mit Elektronen\u00fcberschuss ist\u2026',
+    o:['positiv geladen.','neutral.','negativ geladen.','ferromagnetisch.'],c:2,
+    e:'Mehr Elektronen (\u2212) als Protonen (+) \u2192 negative Ladung.'},
    {q:'Fell steht in der reibungselektrischen Reihe OBEN, Kunststoff UNTEN. Beim Reiben\u2026',
     o:['gibt Fell Elektronen ab und l\u00e4dt sich positiv.','nimmt Fell Elektronen auf und l\u00e4dt sich negativ.','werden Elektronen erzeugt.','passiert nichts.'],c:0,
-    e:'Oben = gibt Elektronen leicht ab \u2192 positiv. Elektronen werden nie erzeugt, nur \u00fcbertragen!'},
-   {q:'Ladungserhaltung bedeutet:',o:['Ladung kann nur \u00fcbertragen werden, nie erzeugt oder zerst\u00f6rt werden.','Ladung verschwindet mit der Zeit.','Nur Protonen sind beweglich.','Ladung ist immer positiv.'],c:0,
-    e:'Ladung ist eine Erhaltungsgr\u00f6\u00dfe: Elektronen wandern nur von Stoff A zu Stoff B.'},
-   {q:'Je weiter elektrische Feldlinien auseinander liegen\u2026',o:['desto gr\u00f6\u00dfer ist dort die Kraft.','desto kleiner ist dort die Kraft.','desto positiver die Ladung.','desto w\u00e4rmer das Feld.'],c:1,
-    e:'Eng beieinander = starkes Feld; weit auseinander = kleine Kr\u00e4fte.'},
-   {q:'Die elektrische Feldst\u00e4rke E gibt an\u2026',o:['wie schnell Elektronen sind.','welche Farbe das Feld hat.','welche Krafteinwirkung eine Probeladung Q_P im Feld von Q erf\u00e4hrt.','wie gro\u00df ein Kondensator ist.'],c:2,
-    e:'Definition: Krafteinwirkung auf die Probeladung Q_P im elektrischen Feld von Q.'},
-   {q:'Ein elektrisches Feld erstreckt sich\u2026',o:['nur wenige Zentimeter.','theoretisch bis ins Unendliche, wird aber immer schw\u00e4cher.','nur zwischen Metallen.','immer gleich stark.'],c:1,
-    e:'Theoretisch unendlich ausgedehnt; die St\u00e4rke nimmt ab, bis die Kraft nicht mehr nachweisbar ist.'},
-   {q:'Ein Kondensator\u2026',o:['speichert Ladung/Energie und gibt sie kurzzeitig wieder ab.','erzeugt dauerhaft Strom.','zerst\u00f6rt Elektronen.','leitet immer.'],c:0,
-    e:'Kondensator = Ladungs-/Energiespeicher; bei Spannungs\u00e4nderung gibt er Ladung ab. Anwendungen: Touchscreens, LED-Schaltungen.'},
-   {q:'Silizium, Germanium und Selen haben jeweils\u2026',o:['2 Valenzelektronen','4 Valenzelektronen','5 Valenzelektronen','8 Valenzelektronen'],c:1,
-    e:'4 Valenzelektronen \u2192 im Kristallgitter alle fest gebunden.'},
-   {q:'Was passiert, wenn man reines Silizium erw\u00e4rmt?',o:['Es wird zum perfekten Isolator.','Nichts.','Elektronen l\u00f6sen sich: Leitungselektronen + L\u00f6cher entstehen \u2192 Strom kann flie\u00dfen.','Die Atome verschmelzen.'],c:2,
-    e:'W\u00e4rmeenergie l\u00f6st schwach gebundene Valenzelektronen \u2192 Leitungselektronen und L\u00f6cher; Leitf\u00e4higkeit steigt mit Temperatur.'},
-   {q:'Das \u201eLoch\u201c im Halbleiter\u2026',o:['ist ein fehlendes Atom.','ist die L\u00fccke nach einem ausgebrochenen Leitungselektron und wirkt wie eine positive Ladung.','ist ein Messfehler.','ist ein freies Proton.'],c:1,
-    e:'Das hinterlassene Loch wirkt positiv und \u00fcbt anziehende Wirkung auf Leitungselektronen aus \u2192 Rekombination.'},
-   {q:'n-Dotierung erreicht man durch Zufuhr von Elementen der\u2026',o:['3. Hauptgruppe \u2192 Elektronenmangel','5. Hauptgruppe \u2192 Elektronen\u00fcberschuss','1. Hauptgruppe','7. Hauptgruppe'],c:1,
-    e:'5. Hauptgruppe (z. B. Phosphor): 5 VE, 4 binden, 1 bleibt frei \u2192 Elektronen\u00fcberschuss (n = negativ).'},
-   {q:'p-Dotierung erzeugt\u2026',o:['Elektronen\u00fcberschuss.','L\u00f6cher / Elektronenmangel \u2013 der Halbleiter wirkt positiv.','einen Permanentmagneten.','W\u00e4rme.'],c:1,
-    e:'3. Hauptgruppe (z. B. Bor): nur 3 Bindungen m\u00f6glich \u2192 Loch \u2192 Positivhalbleiter.'},
-   {q:'Ein Bipolartransistor besteht aus\u2026',o:['2 Schichten / 1 p-n-\u00dcbergang','3 dotierten Schichten / 2 p-n-\u00dcberg\u00e4ngen (npn oder pnp)','4 Schichten / 3 \u00dcberg\u00e4ngen','einer einzigen Schicht'],c:1,
-    e:'3 Schichten: Emitter\u2013Basis\u2013Kollektor, 2 p-n-\u00dcberg\u00e4nge, als npn- oder pnp-Transistor.'},
-   {q:'Ein npn-Transistor leitet, wenn\u2026',o:['nur Emitter-Kollektor-Spannung anliegt.','die Basis-Emitter-Spannung gr\u00f6\u00dfer als die Schwellenspannung ist.','man ihn abk\u00fchlt.','die Basis isoliert ist.'],c:1,
-    e:'U_BE > U_Schwelle (\u22480,7 V) \u2192 Basisstrom flie\u00dft \u2192 Kollektorstrom kann flie\u00dfen.'},
-   {q:'Wozu dient ein Transistor grunds\u00e4tzlich?',o:['Energie erzeugen','Steuern/Verst\u00e4rken niedriger Str\u00f6me','W\u00e4rme speichern','Magnetfelder abschirmen'],c:1,
-    e:'Transistor = Halbleiterbauelement zum Steuern und Verst\u00e4rken niedriger Str\u00f6me.'},
-   {q:'Gleichnamige magnetische Pole\u2026',o:['ziehen sich an.','sto\u00dfen sich ab.','ignorieren sich.','erzeugen Strom.'],c:1,
-    e:'N\u2013N und S\u2013S sto\u00dfen ab; N\u2013S ziehen sich an.'},
-   {q:'Wo ist die magnetische Wirkung eines Magneten am st\u00e4rksten?',o:['in der Mitte','an den Polen','\u00fcberall gleich','innen, unsichtbar'],c:1,
-    e:'An den Polen ist die Wirkung am st\u00e4rksten.'},
-   {q:'Ferromagnetisch sind\u2026',o:['Kupfer, Zink, Zinn','Eisen, Nickel, Cobalt und deren Legierungen','Aluminium, Gold, Silber','alle Metalle'],c:1,
-    e:'Fe, Ni, Co (+ Legierungen wie Stahl) werden angezogen und dabei magnetisiert.'},
-   {q:'Einen Magneten kann man entmagnetisieren durch\u2026',o:['Abk\u00fchlen','Erhitzen oder starke Ersch\u00fctterung','Reiben mit Wolle','Wasser'],c:1,
-    e:'Erhitzen oder starke Ersch\u00fctterung zerst\u00f6rt die magnetische Ordnung.'},
-   {q:'Magnetfelder werden erzeugt durch\u2026',o:['ruhende Ladungen','bewegte elektrische Ladungen (Strom)','nur Permanentmagnete','Licht'],c:1,
-    e:'Bewegte Ladungen erzeugen ein Magnetfeld \u2013 deshalb wird die stromdurchflossene Spule zum Elektromagneten.'},
-   {q:'Die Lorentzkraft ist\u2026',o:['die Kraft zwischen zwei Magneten.','die Kraft, die bewegte Ladungen im Magnetfeld erfahren.','die Schwerkraft.','die Reibung im Kommutator.'],c:1,
+    e:'Je weiter oben, desto leichter gibt der Stoff Elektronen ab \u2192 er l\u00e4dt sich positiv. Elektronen werden nie erzeugt, nur \u00fcbertragen.'},
+   {q:'Ladungserhaltung bedeutet:',
+    o:['Ladung kann nur \u00fcbertragen werden, nie erzeugt oder zerst\u00f6rt werden.','Ladung verschwindet mit der Zeit.','nur Protonen sind beweglich.','Ladung ist immer positiv.'],c:0,
+    e:'Elektronen wandern nur von Stoff zu Stoff \u2013 die Gesamtladung bleibt erhalten.'},
+   {q:'Je weiter elektrische Feldlinien auseinander liegen\u2026',
+    o:['desto gr\u00f6\u00dfer die Kraft dort.','desto kleiner die Kraft dort.','desto positiver die Ladung.','desto st\u00e4rker das Magnetfeld.'],c:1,
+    e:'Weit auseinanderliegende Feldlinien bedeuten kleines Feld \u2192 kleine Kr\u00e4fte.'},
+   {q:'Die elektrische Feldst\u00e4rke E gibt an\u2026',
+    o:['wie schnell Elektronen sind.','welche Krafteinwirkung eine Probeladung Q_P im Feld von Q erf\u00e4hrt.','wie gro\u00df ein Kondensator ist.','wie viele Ladungen existieren.'],c:1,
+    e:'E beschreibt die Krafteinwirkung auf die Probeladung Q_P im Feld von Q.'},
+   {q:'Ein elektrisches Feld erstreckt sich\u2026',
+    o:['nur wenige Zentimeter.','theoretisch bis ins Unendliche, wird aber immer schw\u00e4cher.','nur zwischen Metallen.','nur bei Stromfluss.'],c:1,
+    e:'Theoretisch unendlich \u2013 die St\u00e4rke nimmt ab, bis die Kraft nicht mehr nachweisbar ist.'},
+   {q:'Ein Kondensator\u2026',
+    o:['speichert Ladung/Energie und kann sie kurzzeitig bereitstellen.','erzeugt st\u00e4ndig Strom.','zerst\u00f6rt Elektronen.','leitet immer Strom.'],c:0,
+    e:'Speicher f\u00fcr Ladung; bei Spannungs\u00e4nderung gibt er die Ladung wieder ab. Anwendung: Touchscreens, LED-Schaltungen.'},
+   {q:'Silizium, Germanium und Selen haben jeweils\u2026',
+    o:['2 Valenzelektronen.','4 Valenzelektronen.','5 Valenzelektronen.','8 Valenzelektronen.'],c:1,
+    e:'4 Valenzelektronen \u2013 im Kristallgitter alle fest gebunden.'},
+   {q:'Was passiert bei Zufuhr von W\u00e4rmeenergie in einen reinen Halbleiter?',
+    o:['Er wird zum Isolator.','Nichts.','Elektronen l\u00f6sen sich aus dem Gitter: Leitungselektronen und L\u00f6cher entstehen \u2192 Strom flie\u00dft.','Die Atome verschmelzen.'],c:2,
+    e:'W\u00e4rme l\u00f6st schwach gebundene Elektronen \u2192 Leitungselektronen + zur\u00fcckbleibende L\u00f6cher (wirken positiv).'},
+   {q:'Das \u201eLoch\u201c im Halbleiter\u2026',
+    o:['ist ein fehlendes Atom.','ist die L\u00fccke hinter einem Leitungselektron und wird als positive Ladung verstanden.','ist ein Messfehler.','ist ein freies Proton.'],c:1,
+    e:'Das Loch \u00fcbt anziehende Wirkung auf Leitungselektronen aus \u2013 f\u00e4llt ein Elektron zur\u00fcck, nennt man das Rekombination.'},
+   {q:'n-Dotierung erreicht man durch Zufuhr von Elementen der\u2026',
+    o:['3. Hauptgruppe \u2192 Elektronenmangel.','5. Hauptgruppe \u2192 Elektronen\u00fcberschuss.','1. Hauptgruppe.','7. Hauptgruppe.'],c:1,
+    e:'5. Hauptgruppe (z. B. Phosphor): das 5. Valenzelektron bleibt frei \u2192 Elektronen\u00fcberschuss.'},
+   {q:'p-Dotierung erzeugt\u2026',
+    o:['Elektronen\u00fcberschuss.','Elektronenmangel \u2013 L\u00f6cher \u00fcbernehmen die Leitung (Positivhalbleiter).','einen Permanentmagneten.','W\u00e4rme.'],c:1,
+    e:'3. Hauptgruppe (z. B. Bor): nur drei Bindungen m\u00f6glich \u2192 es bleibt ein Loch.'},
+   {q:'Ein Bipolartransistor besteht aus\u2026',
+    o:['2 Schichten bzw. 1 p-n-\u00dcbergang.','3 dotierten Schichten bzw. 2 p-n-\u00dcberg\u00e4ngen.','4 Schichten bzw. 3 \u00dcberg\u00e4ngen.','einer einzigen Schicht.'],c:1,
+    e:'npn- oder pnp-Transistor: drei Schichten (Emitter, Basis, Kollektor), zwei p-n-\u00dcberg\u00e4nge.'},
+   {q:'Ein npn-Transistor leitet, wenn\u2026',
+    o:['nur eine Spannung zwischen Emitter und Kollektor anliegt.','die Basis-Emitter-Spannung gr\u00f6\u00dfer als die Schwellenspannung ist.','man ihn stark abk\u00fchlt.','die Basis isoliert wird.'],c:1,
+    e:'Erst wenn die Basis-Emitter-Spannung die Schwelle \u00fcberschreitet, flie\u00dft Basisstrom \u2013 und damit Kollektorstrom.'},
+   {q:'Ein Transistor dient grunds\u00e4tzlich dem\u2026',
+    o:['Energieerzeugen.','Steuern und Verst\u00e4rken niedriger Str\u00f6me.','W\u00e4rmespeichern.','Abschirmen von Magnetfeldern.'],c:1,
+    e:'Kleiner Basisstrom steuert gro\u00dfen Kollektorstrom \u2192 Schalter und Verst\u00e4rker.'},
+   {q:'Gleichnamige magnetische Pole\u2026',
+    o:['ziehen sich an.','sto\u00dfen sich ab.','ignorieren sich.','erzeugen Strom.'],c:1,
+    e:'Gleichnamig: Absto\u00dfung. Ungleichnamig: Anziehung. Die Wirkung ist an den Polen am st\u00e4rksten.'},
+   {q:'Wo ist die magnetische Wirkung eines Magneten am st\u00e4rksten?',
+    o:['in der Mitte.','an den Polen.','\u00fcberall gleich.','im Inneren, unsichtbar.'],c:1,e:'An den Polen.'},
+   {q:'Ferromagnetisch sind\u2026',
+    o:['Kupfer, Zink, Zinn.','Eisen, Nickel, Cobalt (und Legierungen dieser).','Aluminium, Gold, Silber.','alle Metalle.'],c:1,
+    e:'Fe, Ni, Co und Legierungen (z. B. Stahl) werden angezogen und k\u00f6nnen magnetisiert werden.'},
+   {q:'Einen Permanentmagneten kann man entmagnetisieren durch\u2026',
+    o:['Abk\u00fchlen.','Erhitzen oder starke Ersch\u00fctterung.','Reiben mit Wolle.','Wasser.'],c:1,
+    e:'Erhitzen oder starke Ersch\u00fctterung hebt die magnetische Ordnung auf.'},
+   {q:'Magnetfelder entstehen durch\u2026',
+    o:['ruhende Ladungen.','bewegte elektrische Ladungen (Strom).','nur Permanentmagnete.','Licht.'],c:1,
+    e:'Bewegte Ladungen erzeugen ein Magnetfeld \u2013 Grundlage des Elektromagneten (stromdurchflossene Spule).'},
+   {q:'Die Lorentzkraft ist\u2026',
+    o:['die Kraft zwischen zwei Magneten.','die Kraft, die bewegte Ladungen im Magnetfeld erfahren.','die Schwerkraft.','die Reibung im Kommutator.'],c:1,
     e:'Bewegte Ladungen erfahren im Magnetfeld eine Kraft \u2013 sie wirkt senkrecht zur Bewegungsrichtung.'},
-   {q:'Die Aufgabe des Kommutators im Elektromotor ist\u2026',o:['die Energieversorgung.','bei einer bestimmten Winkelstellung den Stromfluss im Rotor umzupolen, damit er weiterdreht.','die K\u00fchlung.','die Spannung zu verst\u00e4rken.'],c:1,
-    e:'Ohne Umpolung w\u00fcrde der Rotor stehen bleiben, sobald sich die Pole gegen\u00fcberstehen. Der Kommutator kehrt die Rotorpole um \u2192 Dauerdrehung.'}
+   {q:'Aufgabe des Kommutators im Elektromotor\u2026',
+    o:['Er liefert die Energie.','Er polt den Stromfluss im Rotor bei einer bestimmten Winkelstellung um, damit sich die Pole umkehren und der Rotor weiterdreht.','Er k\u00fchlt den Motor.','Er verst\u00e4rkt die Spannung.'],c:1,
+    e:'Ohne Umpolung w\u00fcrde der Rotor stehen bleiben, sobald Nord- und S\u00fcdpol sich gegen\u00fcberliegen.'}
   ];
-  var qEl=document.getElementById('quiz'), solved=new Set(), correct=0;
+  var qEl=document.getElementById('quiz'), solved={}, cor=0, done=0;
   qs.forEach(function(q,idx){
-    var div=document.createElement('div'); div.className='card quizQ';
-    var head=document.createElement('b'); head.textContent=(idx+1)+'. '+q.q; div.appendChild(head);
-    var opts=document.createElement('div'); opts.className='opts'; opts.style.marginTop='10px';
-    var exp=document.createElement('div'); exp.className='expl';
-    exp.textContent='\ud83d\udca1 '+q.e;
-    var order=[0,1,2,3].sort(function(){return Math.random()-.5;});
-    order.forEach(function(i){
-      var b=document.createElement('div'); b.className='opt'; b.textContent=q.o[i]; b.dataset.i=i;
+    var card=document.createElement('div'); card.className='quizcard';
+    var p=document.createElement('p'); p.textContent=(idx+1)+'. '+q.q; card.appendChild(p);
+    var ex=document.createElement('div'); ex.className='expl'; ex.textContent=q.e;
+    var order=[0,1,2,3].sort(function(){return Math.random()-.5});
+    order.forEach(function(oi){
+      var b=document.createElement('div'); b.className='opt'; b.textContent=q.o[oi]; b.dataset.i=oi;
       b.onclick=function(){
-        if(solved.has(idx))return;
-        solved.add(idx);
-        b.classList.add(i===q.c?'correct':'wrong');
-        Array.prototype.forEach.call(opts.children,function(c){
-          if(+c.dataset.i===q.c)c.classList.add('correct');
+        if(solved[idx])return;
+        solved[idx]=true; done++;
+        b.classList.add(oi===q.c?'correct':'wrong');
+        [].forEach.call(card.querySelectorAll('.opt'),function(o2){
+          if(+o2.dataset.i===q.c)o2.classList.add('correct');
         });
-        if(i===q.c)correct++;
-        exp.classList.add('show');
-        if(solved.size===qs.length){
+        if(oi===q.c)cor++;
+        ex.classList.add('show');
+        if(done===qs.length){
           var sc=document.getElementById('scoreCard'); sc.style.display='block';
-          document.getElementById('scoreTxt').textContent=correct+' / '+qs.length+' richtig! '+
-            (correct>=qs.length*0.8?'\ud83c\udfc6 Du bist ready f\u00fcr den Test!':
-             (correct>=qs.length*0.5?'\ud83d\udc4d Gut! Schau dir die verpassten Kapitel nochmal an.':'\ud83d\udcd6 Klick nochmal durch die Kapitel \u2013 dann klappt es!'));
+          document.getElementById('scoreTxt').textContent=cor+' von '+qs.length;
           sc.scrollIntoView({behavior:'smooth'});
         }
       };
-      opts.appendChild(b);
+      card.appendChild(b);
     });
-    div.appendChild(opts); div.appendChild(exp); qEl.appendChild(div);
+    card.appendChild(ex); qEl.appendChild(card);
   });
 })();
 
