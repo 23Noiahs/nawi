@@ -360,42 +360,114 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
 
 /* ---------- 01 Ladung ---------- */
 (function(){
-  var cv=document.getElementById('cvCharge'), moved=0;
+  var cv=document.getElementById('cvCharge');
+  var moved=0;                      // wie viele Elektronen schon B verlassen haben
+  var fly=null;                     // Flug-Animation B -> A
+  var tick=0;
   function draw(){
     var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
-    var bw=210, y0=26, bh=100, xA=30, xB=w-30-bw;
-    c.strokeStyle='#111'; c.lineWidth=1; c.strokeRect(xA,y0,bw,bh); c.strokeRect(xB,y0,bw,bh);
-    txt(c,'K\u00f6rper A',xA+bw/2,16,12,'#666'); txt(c,'K\u00f6rper B',xB+bw/2,16,12,'#666');
-    function row(ox,n,r,colFn){
-      for(var i=0;i<n;i++){var x=ox+14+(i%4)*((bw-28)/3), y=y0+20+Math.floor(i/4)*26; colFn(c,x,y,r);}
+    c.clearRect(0,0,w,h); tick++;
+
+    var bw=Math.min(230,w*0.30), bh=h*0.40, y0=h*0.14;
+    var ax=w*0.5-bw*1.35, bx=w*0.5+bw*0.35;
+
+    // ---- Körper A (links) ----
+    c.lineWidth=2; c.strokeStyle='#111';
+    c.strokeRect(ax,y0,bw,bh);
+    txt(c,'Körper A',ax+bw/2,y0-8,13,'#666');
+    // Protonen (immer 8, oben): gefüllte Kreise mit +
+    for(var i=0;i<8;i++) plusIcon(c, ax+18+(i%4)*((bw-36)/3), y0+22+Math.floor(i/4)*24, 8);
+    // Elektronen (unten): offene Ringe mit −
+    var eA=8+moved;
+    for(var e=0;e<Math.min(eA,12);e++) minusIcon(c, ax+18+(e%4)*((bw-36)/3), y0+bh-34-Math.floor(e/4)*24, 7);
+
+    // ---- Körper B (rechts) ----
+    c.strokeRect(bx,y0,bw,bh);
+    txt(c,'Körper B',bx+bw/2,y0-8,13,'#666');
+    for(var j=0;j<8;j++) plusIcon(c, bx+18+(j%4)*((bw-36)/3), y0+22+Math.floor(j/4)*24, 8);
+    var eB=8-moved;
+    for(var e2=0;e2<Math.min(eB,12);e2++) minusIcon(c, bx+18+(e2%4)*((bw-36)/3), y0+bh-34-Math.floor(e2/4)*24, 7);
+
+    // ---- Ladungs-Anzeige GROSS unter den Boxen ----
+    function fmt(d){ return d>0? '+'+d : (d<0? ''+d : '0'); }
+    txt(c,'Q = '+fmt(eA-8)+' e', ax+bw/2, y0+bh+22, 18, eA-8>0?'#111':'#666');
+    txt(c,'Q = '+fmt(eB-8)+' e', bx+bw/2, y0+bh+22, 18, eB-8<0?'#111':'#666');
+    if(eA-8>0) txt(c,'Elektronenmangel \u2192 positiv', ax+bw/2, y0+bh+40, 11,'#666');
+    else if(eA-8<0) txt(c,'Elektronen\u00fcberschuss \u2192 negativ', ax+bw/2, y0+bh+40, 11,'#666');
+    if(eB-8<0) txt(c,'Elektronen\u00fcberschuss \u2192 negativ', bx+bw/2, y0+bh+40, 11,'#666');
+    else if(eB-8>0) txt(c,'Elektronenmangel \u2192 positiv', bx+bw/2, y0+bh+40, 11,'#666');
+
+    // ---- fliegendes Elektron (während der Übertragung) ----
+    if(fly){
+      fly.t+=0.03;
+      var t=Math.min(1,fly.t);
+      var fx=(ax+bw+(bx-ax-bw)*t)+(bx-(ax+bw))*0;
+      var x=(ax+bw)+((bx)-(ax+bw))*t;
+      var y=y0+bh-40+Math.sin(t*Math.PI)*-30;      // kleiner Bogen nach oben
+      ring(c,x,y,10,2.5); txt(c,'\u2212',x,y+4,14);
+      arrowH(c,(ax+bw+bx)/2-30,y+34,60*(0.4+0.2*Math.sin(tick/6)));
+      txt(c,'Elektron wandert von B zu A',(ax+bw+bx)/2,y0+16,12,'#111');
+      if(fly.t>=1){ moved=Math.min(8,moved+1); fly=null; }
+    } else {
+      txt(c,'Reibung: Elektronen wandern von B zu A \u2013 sie entstehen nie neu!',w/2,h-10,12,'#666');
+      txt(c,'Gesamt: Q(A)+Q(B) = 0 \u2013 Ladungerhaltung',w/2,h-28,12,'#111');
     }
-    row(xA,8,7,plusIcon); row(xB,8,7,plusIcon);
-    var eA=8+moved, eB=8-moved;
-    row(xA,Math.min(eA,16),6,minusIcon); row(xB,Math.min(eB,16),6,minusIcon);
-    function fq(d){return d>0?'+ '+d:(d<0?'\u2212 '+(-d):'0')}
-    txt(c,'Q = '+fq(eA-8)+' e',xA+bw/2,y0+bh+22,13);
-    txt(c,'Q = '+fq(eB-8)+' e',xB+bw/2,y0+bh+22,13);
-    txt(c,'Q_A + Q_B = 0  (Ladungserhaltung)',w/2,h-14,12,'#666');
-    document.getElementById('chgInfo').textContent='A: '+fq(eA-8)+'e   B: '+fq(eB-8)+'e';
+    document.getElementById('chgInfo').textContent=''
+      +((8+moved)-8>0?'+':'')+((8+moved)-8)+' / '+((8-moved)-8);
   }
-  document.getElementById('chgRub').onclick=function(){if(moved<8){moved++;}};
-  document.getElementById('chgReset').onclick=function(){moved=0;};
+  document.getElementById('chgRub').onclick=function(){ if(moved<8&&!fly) fly={t:0}; };
+  document.getElementById('chgReset').onclick=function(){ moved=0; fly=null; };
   anims.charge=draw;
 })();
 
 /* ---------- 02 Coulomb ---------- */
 (function(){
-  var cv=document.getElementById('cvCoulomb'), sign=-1, rEl=document.getElementById('coulR');
+  var cv=document.getElementById('cvCoulomb'); var sign=-1;
+  var rEl=document.getElementById('coulR');
   function draw(){
     var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
-    var r=+rEl.value, scale=(w-140)/380, y=h/2+18, x1=70, x2=70+r*scale;
-    var Frel=(200/r)*(200/r), len=Math.min(150,25+Frel*95);
-    if(sign<0){ arrowH(c,x1+28,y,len); arrowH(c,x2+28,y,-len); }
-    else{ arrowH(c,x1-4,y,-len); arrowH(c,x2+60,y,len); }
-    plusIcon(c,x1,y,22); if(sign<0)minusIcon(c,x2,y,22); else plusIcon(c,x2,y,22);
-    txt(c,'r = '+r+'   F = '+Math.round(Frel*100)+' %',w/2,26,15);
-    txt(c,sign<0?'Anziehung':'Absto\u00dfung',w/2,h-16,12,'#666');
-    document.getElementById('coulInfo').textContent='F = '+Math.round(Frel*100)+'%';
+    c.clearRect(0,0,w,h);
+    var r=+rEl.value, trackY=h*0.56, x1=w*0.16;
+    var usable=w*0.78, scale=usable/380, x2=x1+r*scale;
+    var Frel=(200/r)*(200/r);           // F bezogen auf r=200
+
+    // Skala unten
+    c.globalAlpha=.35; line(c,w*0.10,trackY+52,w*0.92,trackY+52,1); c.globalAlpha=1;
+
+    // Kugeln
+    plusIcon(c,x1,trackY,26);
+    if(sign<0) minusIcon(c,x2,trackY,26); else plusIcon(c,x2,trackY,26);
+
+    // Massstabs-Pfeil r zwischen den Mittelpunkten
+    var dy=trackY+64;
+    c.globalAlpha=.8;
+    arrowH(c,x1,dy,(x2-x1)); arrowH(c,x2,dy,-((x2-x1)));
+    c.globalAlpha=1;
+    c.fillStyle='#fff'; c.fillRect((x1+x2)/2-42,dy-10,84,20);
+    txt(c,'r = '+r,(x1+x2)/2,dy+4,13);
+
+    // dicke Kraftpfeile an den Kugeln
+    var len=Math.min(120,20+Frel*80), dir=sign<0?1:-1;
+    c.lineWidth=8; c.strokeStyle='#111';
+    if(sign<0){
+      line(c,x1+30,trackY,x1+30+Math.min(x2-x1-70,len),trackY,8);
+      line(c,x2-30,trackY,x2-30-Math.min(x2-x1-70,len),trackY,8);
+    }else{
+      line(c,x1-30,trackY,x1-30-len,trackY,8);
+      line(c,x2+30,trackY,x2+30+len,trackY,8);
+    }
+    txt(c,sign<0?'ziehen sich an':'sto\u00dfen sich ab',w/2,trackY-56,14);
+
+    // ---- Vergleichs-Balken oben ----
+    var bx=w*0.30, bw=w*0.40, by=26;
+    txt(c,'Kraftvergleich (r = 200 entspricht 100 %):',w/2,20,12,'#666');
+    // Referenzbalken
+    line(c,bx,by+12,bx+bw,by+12,10); txt(c,'bei r = 200  \u2192  100 %',bx+bw+12,by+16,11,'#666');
+    // aktueller Balken
+    line(c,bx,by+36,bx+Math.max(4,bw*Frel),by+36,10);
+    txt(c,'bei r = '+r+'  \u2192  '+Math.round(Frel*100)+' %',bx+bw+12,by+40,12,'#111');
+    txt(c,'Regel: Abstand verdoppeln \u2192 Kraft auf 1/4',w/2,h-14,12,'#111');
+    document.getElementById('coulInfo').textContent='r = '+r+'  \u2192  F = '+Math.round(Frel*100)+' %';
   }
   rEl.oninput=function(){};
   document.getElementById('coulFlip').onclick=function(){sign*=-1;};
@@ -497,34 +569,104 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
 
 /* ---------- 05 Kondensator ---------- */
 (function(){
-  var cv=document.getElementById('cvCap'), q=0, target=0, dis=false;
+  var cv=document.getElementById('cvCap'); var q=0, target=100, dis=false, tick=0;
   document.getElementById('capCharge').onclick=function(){target=100;dis=false};
   document.getElementById('capDischarge').onclick=function(){target=0;dis=true};
+  // Pfad-Helfer: Punkt entlang einer Polylinie
+  function polyPoint(pts,t){
+    var segs=[],L=0;
+    for(var i=0;i<pts.length-1;i++){
+      var d=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);
+      segs.push(d); L+=d;
+    }
+    var x=t*L;
+    for(var i2=0;i2<segs.length;i2++){
+      if(x<=segs[i2]){
+        var f=x/(segs[i2]||1);
+        return [pts[i2][0]+(pts[i2+1][0]-pts[i2][0])*f, pts[i2][1]+(pts[i2+1][1]-pts[i2][1])*f];
+      }
+      x-=segs[i2];
+    }
+    return pts[pts.length-1];
+  }
+  function polyDraw(c,pts){
+    c.beginPath(); c.moveTo(pts[0][0],pts[0][1]);
+    for(var i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);
+    c.stroke();
+  }
   function draw(){
     var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
+    c.clearRect(0,0,w,h); tick++;
     q+=(target-q)*0.05;
-    var px=w/2, pw=Math.max(90,w*0.24), ph=h*0.46, top=h*0.28;
-    c.globalAlpha=.35;
-    line(c,px-pw/2-16,top+ph/2,px-pw/2-16,34); line(c,px-pw/2-16,34,px+pw/2+16,34); line(c,px+pw/2+16,34,px+pw/2+16,top+ph/2);
-    c.globalAlpha=1;
-    line(c,px-pw/2-40,26,px-pw/2-12,26); line(c,px+pw/2+12,40,px+pw/2+40,40);
-    txt(c,dis?'Verbraucher (z. B. LED)':'Spannungsquelle',px,18,11,'#666');
-    line(c,px-pw/2-8,top,px-pw/2-8,top+ph,10);
-    line(c,px+pw/2+8,top,px+pw/2+8,top+ph,10);
-    var n=Math.round(q/100*6);
+
+    // Anordnung
+    var PL=w*0.42, PR=w*0.62;          // Platten x
+    var pTop=h*0.34, ph=h*0.42;         // Platten: y, Hoehe
+    var wireY=h*0.22;                   // obere Verdrahtung
+    var btY=h*0.86;                     // Batterie-Hoehe
+    var bxA=w/2-16, bxB=w/2+16;         // Batterie-Kontakte
+
+    // ---- Platten ----
+    c.fillStyle='#111';
+    c.fillRect(PL-6,pTop,12,ph);
+    c.fillRect(PR-6,pTop,12,ph);
+    txt(c,'Elektronenmangel',PL,pTop+ph+18,11,'#666');
+    txt(c,'Elektronenüberschuss',PR,pTop+ph+18,11,'#666');
+
+    // ---- Batterie (unten Mitte) ----
+    line(c,bxA,btY-h*0.10,bxA,btY+h*0.10,5);      // langer Strich = +
+    line(c,bxB,btY-h*0.05,bxB,btY+h*0.05,3);      // kurzer Strich = −
+    txt(c,'+',bxA-12,btY-h*0.10+4,14);
+    txt(c,'−',bxB+12,btY+h*0.05+4,14);
+    txt(c,'Batterie',w/2,btY+h*0.10+18,12,'#666');
+
+    // ---- Leitungen (symmetrisch) ----
+    c.lineWidth=1.5;
+    var leftPath=[[PL,pTop],[PL,wireY],[w*0.14,wireY],[w*0.14,btY],[bxA,btY]];
+    var rightPath=[[PR,pTop],[PR,wireY],[w*0.86,wireY],[w*0.86,btY],[bxB,btY]];
+    polyDraw(c,leftPath); polyDraw(c,rightPath);
+
+    // ---- Ladungen auf den Platten ----
+    var n=Math.round(q/100*4);
     for(var i=0;i<n;i++){
-      var yy=top+14+i*(ph/6);
-      plusIcon(c,px-pw/2-8,yy,6);
-      minusIcon(c,px+pw/2+8,yy,6);
+      var yy=pTop+12+i*(ph-24)/3;
+      txt(c,'+',PL-0,yy+5,16,'#111');
+      txt(c,'−',PR+0,yy+5,16,'#111');
     }
+    txt(c,'Platte +',PL,pTop-12,12);
+    txt(c,'Platte −',PR,pTop-12,12);
+
+    // ---- E-Feld zwischen den Platten (Pfeile von + nach −) ----
     if(q>3){
-      for(var k=0;k<4;k++) line(c,px-pw/2+2,top+18+k*(ph-36)/3,px+pw/2-2,top+18+k*(ph-36)/3,1);
-      txt(c,'E',px,top-12,14);
+      for(var k=1;k<=3;k++){
+        var ly=pTop+8+(k-0.5)*(ph-16)/3;
+        line(c,PL+8,ly,PR-8,ly,1.5);
+        c.beginPath();
+        c.moveTo(PR-8,ly); c.lineTo(PR-16,ly-4); c.lineTo(PR-16,ly+4);
+        c.closePath(); c.fillStyle='#111'; c.fill();
+      }
+      txt(c,'E-Feld',w/2,pTop-30,13);
     }
-    var bw=Math.min(220,w*0.4);
-    line(c,px-bw/2,h-26,px+bw/2,h-26,1);
-    line(c,px-bw/2,h-24,px-bw/2+bw*q/100,h-24,4);
-    txt(c,Math.round(q)+' %',px,h-34,12,'#666');
+
+    // ---- wandernde Elektronen in den Leitungen ----
+    if(q>2){
+      var nd=5;
+      for(var d=0;d<nd;d++){
+        var p=((( (tick*0.01)*(dis?-1:1) )+d/nd)%1+1)%1;
+        var lpt=polyPoint(leftPath, dis?p:1-p);
+        var rpt=polyPoint(rightPath, dis?1-p:p);
+        ring(c,lpt[0],lpt[1],4,1.5);
+        ring(c,rpt[0],rpt[1],4,1.5);
+      }
+      txt(c,'Elektronen',(w*0.14+PL)/2,wireY-8,10,'#666');
+      txt(c,'Elektronen',(PR+w*0.86)/2,wireY-8,10,'#666');
+    }
+
+    // ---- Status ----
+    txt(c, dis? 'Entladen: gespeicherte Ladung fließt zurück (z. B. durch eine LED)'
+              : (q<97? 'Laden: Elektronen wandern zur −-Platte, das E-Feld wächst'
+                      : 'Voll geladen – Ladung und Energie sind gespeichert'),
+        w*0.5, h-10, 12, '#111');
     document.getElementById('capInfo').textContent='Ladung '+Math.round(q)+' %';
   }
   anims.cap=draw;
@@ -569,99 +711,101 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
 
 /* ---------- 06b Dotierung ---------- */
 (function(){
-  var cv=document.getElementById('cvDope'), mode='none', tick=0;
-  var N=8, M=4;                       // Atome: Spalten x Zeilen
-  var freeE={x:0.55,y:0.55,vx:0.001,vy:0.0008};   // freies Elektron (n)
-  var hole={col:5,row:1};             // Bindung (zwischen Spalte col und col+1), Zeile row
-  var hop=null, trail=[];             // Sprung-Animation + Loch-Spur
-  function bondMid(mx,my,sx,sy,col,row){ return {x:mx+col*sx+sx/2, y:my+row*sy}; }
+  var cv=document.getElementById('cvDope'); var mode='none', tick=0;
+  var N=6;                          // Atome in der Reihe
+  var hole=2;                        // Index der Bindung mit Loch (zwischen Atom i und i+1)
+  var hop=null, trail=[];            // Sprung + Spur
   function draw(){
     var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     c.clearRect(0,0,w,h); tick++;
-    var mx=w*0.09, my=h*0.30, gw=w*0.82, gh=h*0.44;
-    var sx=gw/(N-1), sy=gh/(M-1);
+    // Reihe: 6 Atome, gross
+    var mx=w*0.12, gy=h*0.42;
+    var px=Math.min((w*0.76)/(N-1), 130), r=16;
+
     // Bindungen
-    c.globalAlpha=.4;
-    for(var j=0;j<M;j++)for(var i=0;i<N-1;i++)
-      line(c,mx+i*sx+9,my+j*sy,mx+(i+1)*sx-9,my+j*sy,1);
-    c.globalAlpha=1;
-    // Atome; Fremdatom bei Spalte 2, Zeile 1
-    for(var j2=0;j2<M;j2++)for(var i2=0;i2<N;i2++){
-      var ax=mx+i2*sx, ay=my+j2*sy;
-      var foreign=(mode!=='none'&&j2===1&&i2===2);
-      disc(c,ax,ay,10);
-      if(foreign){
-        c.fillStyle='#fff'; c.beginPath(); c.arc(ax,ay,10,0,7); c.fill();
-        ring(c,ax,ay,10,2.5); txt(c,mode==='n'?'P':'B',ax,ay+3.5,10);
-      } else txtS(c,'Si',ax,ay+3.5,8);
+    for(var i=0;i<N-1;i++){
+      c.globalAlpha=.35;
+      line(c,mx+i*px+r+2,gy,mx+(i+1)*px-r-2,gy,5);
+      c.globalAlpha=1;
     }
-    var legendY=my+gh+26;
+    // Atome (Fremdatom = Atom 1, hervorgehoben)
+    for(var a=0;a<N;a++){
+      var ax=mx+a*px;
+      var foreign=(mode!=='none'&&a===1);
+      if(foreign){
+        c.fillStyle='#fff'; c.beginPath(); c.arc(ax,gy,r,0,7); c.fill();
+        ring(c,ax,gy,r,2.5);
+        txt(c,mode==='n'?'P':'B',ax,gy+4,13);
+      }else{
+        disc(c,ax,gy,r);
+        txtS(c,'Si',ax,gy+3.5,11);
+      }
+    }
+    var legend1=h*0.80, legend2=h*0.94;
+
     if(mode==='n'){
-      // 5. VE: frei beweglich – praefiert in der Naehe des Fremdatoms, wandernd
-      freeE.x+=freeE.vx; freeE.y+=freeE.vy;
-      if(freeE.x<0.15||freeE.x>0.85)freeE.vx*=-1;
-      if(freeE.y<0.35||freeE.y>0.70)freeE.vy*=-1;
-      var fp=bondMid(mx,my,sx,sy,2,1);
-      ring(c,fp.x,fp.y,9,2);   // die leere 5. Bindung
-      var fx=w*freeE.x, fy=h*freeE.y;
-      ring(c,fx,fy,7,2); txt(c,'\u2212',fx,fy+2.5,10);
-      c.globalAlpha=.4; line(c,fp.x,fp.y,fx,fy,1); c.globalAlpha=1;
-      txt(c,'5. Valenzelektron: frei, wandert durchs Gitter  \u2192  Elektronen\u00fcberschuss',w/2,legendY,12);
-      txt(c,'n-Dotierung: NEGATIV, die Leitung \u00fcbernehmen Elektronen',w/2,16,13);
+      // P hat 5 VE: fuer jeden Nachbarn eins abgeben + ein FREIES fuenftes
+      // gebundene Elektronen auf ALLEN Bindungen
+      for(var b=0;b<N-1;b++){
+        var bx=mx+b*px+px/2;
+        disc(c,bx,gy,5);
+      }
+      // das frei bewegliche 5. Elektron: wandert um das P-Atom
+      var orbit=performance.now()/900;
+      var fx=mx+px+Math.cos(orbit)*46, fy=gy+Math.sin(orbit)*30;
+      c.globalAlpha=.4; line(c,mx+px,gy,fx,fy,1); c.globalAlpha=1;
+      ring(c,fx,fy,8,2.5); txt(c,'\u2212',fx,fy+3,12);
+      txt(c,'n-Dotierung: P-Atom (5. HG) schenkt dem Gitter ein FREIES Elektron', w/2, 22, 13);
+      txt(c,'Elektronen\u00fcberschuss \u2192 NEGativ-Halbleiter (\u201en\u201c wie negativ)', w/2, legend1, 12);
+      txt(c,'Die Leitung \u00fcbernehmen die freien Elektronen.', w/2, legend2, 12, '#666');
     } else if(mode==='p'){
-      // Loch: Bindung ohne Elektron; Nachbar-Elektron springt hinein.
-      var hp=bondMid(mx,my,sx,sy,hole.col,hole.row);
-      // Sprung starten
-      if(!hop && tick%50===0){
-        var dir=+1;                                 // Elektron springt von rechts ins Loch -> Loch wandert nach rechts
-        var fromCol=hole.col+1;
-        if(fromCol>N-2){ hole.col=1; trail=[]; fromCol=hole.col+1; }
-        hop={from:{col:fromCol,row:hole.row}, to:{col:hole.col,row:hole.row}, t:0, dir:dir};
+      var hb=hole*px+mx;                 // Loch-Position (Bindung)
+      // Sprung starten: Elektron der RECHTEN Nachbarbindung springt ins Loch
+      if(!hop && tick%56===0 && hole<N-2){
+        hop={from:hole+1,t:0};
       }
-      // Elektronen auf allen restlichen Bindungen zeichnen
-      for(var r2=0;r2<M;r2++)for(var b=0;b<N-1;b++){
-        if(hop){
-          if(r2===hop.from.row&&(b===hop.from.col)||(b===hop.to.col))continue; // beide im Sprung sichtbar
-        } else if(r2===hole.row&&b===hole.col)continue;
-        var bp=bondMid(mx,my,sx,sy,b,r2);
-        if(r2===hole.row&&b>hole.col){ /* rechts vom Loch: normal */ }
-        disc(c,bp.x,bp.y,4.5);
+      // alle Bindungen ausser Loch + Ursprungsbindung
+      for(var b2=0;b2<N-1;b2++){
+        if(b2===hole) continue;
+        if(hop && b2===hop.from) continue;
+        var bx2=mx+b2*px+px/2;
+        disc(c,bx2,gy,5);
       }
+      // Loch
+      var hx=hb+px/2;
+      dashring(c,hx,gy+0,10); txt(c,'+',hx,gy+4,13);
+      // springendes Elektron animieren
       if(hop){
-        hop.t+=0.05;
-        var from=bondMid(mx,my,sx,sy,hop.from.col,hop.from.row);
+        hop.t+=0.04;
+        var fromX=mx+hop.from*px+px/2;
         var t=Math.min(1,hop.t);
-        var ex=from.x+(hp.x-from.x)*t, ey=from.y+(hp.y-from.y)*t;
-        ring(c,ex,ey,5,2); txt(c,'\u2212',ex,ey+2.5,8);   // springendes Elektron
+        var ex=fromX+(hx-fromX)*t, ey=gy-Math.sin(t*Math.PI)*22;
+        ring(c,ex,ey,6,2); txt(c,'\u2212',ex,ey+2.5,9);
+        // Pfeil vom Ursprung zum Loch
+        c.globalAlpha=.4; arrowH(c,fromX,gy-34,(hx-fromX)*0.8); c.globalAlpha=1;
         if(hop.t>=1){
-          trail.push({col:hop.to.col,row:hole.row});
+          trail.push({x:hx});
           if(trail.length>3)trail.shift();
-          hole.col+=hop.dir; if(hole.col>N-3)hole.col=N-3; if(hole.col<0)hole.col=0;
+          hole=hop.from;                 // Loch ist jetzt dort, wo das Elektron herkam
           hop=null;
         }
       }
-      // Loch zeichnen
-      dashring(c,hp.x,hp.y,9); txt(c,'+',hp.x,hp.y+3.5,11);
-      // Spur: Pfeile an alten Lochpositionen
-      c.globalAlpha=.35;
-      trail.forEach(function(t2){
-        var tp=bondMid(mx,my,sx,sy,t2.col,t2.row);
-        arrowH(c,tp.x,tp.y-16,26);
-      });
+      // Spur
+      c.globalAlpha=.3;
+      trail.forEach(function(t2,i2){ arrowH(c,t2.x,gy+30,26*(i2+1)/3); });
       c.globalAlpha=1;
-      txt(c,'Elektronen springen einzeln ins Loch \u2192 das Loch wandert nach rechts (wie eine positive Ladung)',w/2,legendY,12);
-      txt(c,'p-Dotierung: POSITIV, die Leitung \u00fcbernehmen die L\u00f6cher',w/2,16,13);
+      txt(c,'p-Dotierung: B-Atom (3. HG) kann nur 3 Bindungen \u2192 ein Loch bleibt', w/2, 22, 13);
+      txt(c,'Jedesmal springt das Elektron der Nachbarbindung ins Loch', w/2, legend1, 12);
+      txt(c,'\u2192 zur\u00fcck bleibt ein NEUES Loch: das Loch wandert durchs Gitter wie eine positive Ladung', w/2, legend2, 12, '#666');
     } else {
-      // rein: alle Bindungen besetzt
-      for(var r3=0;r3<M;r3++)for(var b3=0;b3<N-1;b3++){
-        var bp3=bondMid(mx,my,sx,sy,b3,r3); disc(c,bp3.x,bp3.y,4.5);
-      }
-      txt(c,'reines Silizium: alle 4 Valenzelektronen fest gebunden \u2013 nichts ist frei',w/2,legendY,12);
+      for(var b3=0;b3<N-1;b3++) disc(c,mx+b3*px+px/2,gy,5);
+      txt(c,'reines Silizium: alle 4 Valenzelektronen fest gebunden \u2013 nichts frei, kein Strom', w/2, 22, 13);
+      txt(c,'Hauptgruppe 3 (B) \u2192 Loch (p)   \u00b7   Hauptgruppe 5 (P) \u2192 freies Elektron (n)', w/2, legend1, 12, '#666');
     }
   }
-  document.getElementById('dopeNone').onclick=function(){mode='none';hop=null;trail=[];document.getElementById('dopeInfo').textContent='undotiert';};
+  document.getElementById('dopeNone').onclick=function(){mode='none';hop=null;trail=[];hole=2;document.getElementById('dopeInfo').textContent='undotiert';};
   document.getElementById('dopeN').onclick=function(){mode='n';document.getElementById('dopeInfo').textContent='n-dotiert';};
-  document.getElementById('dopeP').onclick=function(){mode='p';hop=null;trail=[];document.getElementById('dopeInfo').textContent='p-dotiert';};
+  document.getElementById('dopeP').onclick=function(){mode='p';hop=null;trail=[];hole=2;document.getElementById('dopeInfo').textContent='p-dotiert';};
   anims.dope=draw;
 })();
 
@@ -672,65 +816,77 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
     var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     c.clearRect(0,0,w,h);
     var U=+uEl.value, on=U>0.7;
-    var bw=Math.min(300,w*0.40), bh=h*0.34, bx=(w-bw)/2, by=h*0.30;
-    var colW=bw/3;
-    // Schichten
-    [['n',0],['p',1],['n',2]].forEach(function(L){
-      var x=bx+L[1]*colW;
-      if(L[0]==='p'){ c.fillStyle='#111'; c.fillRect(x,by,colW-1,bh); }
-      else { c.strokeStyle='#111'; c.lineWidth=1.5; c.strokeRect(x,by,colW-1,bh);
-        for(var px=x+7;px<x+colW-8;px+=14){c.globalAlpha=.25;line(c,px,by+4,px,by+bh-4,1);c.globalAlpha=1;} }
-    });
-    // Pin-Beschriftung
-    ['E','B','C'].forEach(function(p,i){
-      txt(c,p,bx+i*colW+(colW-1)/2,by+bh+20,15);
-      txt(c,['Emitter','Basis','Kollektor'][i],bx+i*colW+(colW-1)/2,by+bh+38,10,'#666');
-    });
-    var eY=by+bh/2, topY=by-42, baseY=h-52, leftX=bx-40, rightX=bx+bw+40;
-    var bPinX=bx+1.5*colW-0.5;
-    c.globalAlpha=.5;
-    // EC-Kreis
-    line(c,leftX,eY,leftX,topY); line(c,leftX,topY,rightX,topY); line(c,rightX,topY,rightX,eY);
-    line(c,leftX,eY,bx,eY); line(c,bx+bw-1,eY,rightX-14,eY);
-    // Basis-Kreis
-    line(c,bPinX,by+bh,bPinX,baseY);
-    line(c,bPinX,baseY,leftX,baseY); line(c,leftX,baseY,leftX,eY);
-    c.globalAlpha=1;
-    // Batterien
-    // U_EC oben
-    line(c,rightX-40,topY,rightX-22,topY,4); line(c,rightX-36,topY+4,rightX-26,topY+4,1.5);
-    txt(c,'U (E–C)',rightX-31,topY-10,10,'#666');
-    // U_BE unten
-    line(c,leftX+18,baseY,leftX+36,baseY,4); line(c,leftX+22,baseY+4,leftX+32,baseY+4,1.5);
-    txt(c,'+',leftX+12,baseY-2,10,'#666'); txt(c,'\u2212',leftX+42,baseY-2,10,'#666');
-    txt(c,'U (E–B) = '+U.toFixed(1)+' V',leftX+110,baseY+4,12,on?'#111':'#666');
 
-    // Status
-    txt(c, on? 'LEITET \u2013 Basisstrom \u00f6ffnet den Transistor'
-             : 'GESPERRT \u2013 p\u2011n\u2011\u00dcbergang sperrt, kein Kollektorstrom',
-        w/2, 20, 13, on?'#111':'#666');
-    txt(c,'Schwellenspannung \u2248 0,7 V',w/2,38,11,'#666');
+    // ---- Schicht-Block MITTIG, gross ----
+    var layerW=w*0.36, layerH=h*0.30, lx=(w-layerW)/2, ly=h*0.36;
+    var seg=layerW/3;
+    // n (Emitter)
+    c.strokeStyle='#111'; c.lineWidth=2; c.strokeRect(lx,ly,seg-2,layerH);
+    // p (Basis): schwarz
+    c.fillStyle='#111'; c.fillRect(lx+seg,ly,seg-2,layerH);
+    // n (Kollektor)
+    c.strokeRect(lx+2*seg,ly,seg-2,layerH);
+    txt(c,'n',lx+seg/2,ly+layerH/2+6,20);
+    txtS(c,'p',lx+seg*1.5,ly+layerH/2+6,20);
+    txt(c,'n',lx+seg*2.5,ly+layerH/2+6,20);
+    // Pin-Buchstaben + rohe Namen
+    txt(c,'E \u2013 Emitter',lx+seg/2,ly+layerH+24,12);
+    txt(c,'B \u2013 Basis',lx+seg*1.5,ly+layerH+24,12);
+    txt(c,'C \u2013 Kollektor',lx+seg*2.5,ly+layerH+24,12);
 
-    if(on){
-      var t=performance.now()/260;
-      for(var k=0;k<3;k++){                      // Basisstrom I_B
-        var p=((t*0.5+k/3)%1);
-        ring(c,leftX+(bPinX-leftX)*p,baseY,4,1.5);
-      }
-      txt(c,'Basisstrom (klein)',(leftX+bPinX)/2,baseY+18,11,'#666');
-      for(var k2=0;k2<8;k2++){                   // Kollektorstrom I_C
-        var p2=((t+k2/8)%1);
-        ring(c,leftX+(rightX-leftX-14)*p2,eY,4.5,1.8);
-      }
-      arrowH(c,rightX+30,eY,40);
-      txt(c,'Kollektorstrom (groß)',rightX+75,eY-12,12);
+    // Sperr-Anzeige: Block am B-C-\u00dcbergang
+    if(!on){
+      c.fillRect(lx+2*seg-4,ly-14,8,layerH+28);
+      txt(c,'p-n-\u00dcbergang sperrt \u2013 VENTIL ZU',w/2,ly-26,14);
     } else {
-      var jx=bx+2*colW-0.5;
-      c.globalAlpha=.6;
-      line(c,jx-30,by+12,jx-8,by+12,2); line(c,jx-26,by+18,jx-12,by+18,2);
-      c.globalAlpha=1;
-      txt(c,'sperrt',jx-19,by+34,10,'#666');
+      txt(c,'Basisstrom \u00f6ffnet den Weg \u2013 VENTIL OFFEN',w/2,ly-26,14);
     }
+
+    // ---- grosser Strom I_C: viele Elektronen links rein, rechts raus ----
+    var inX=w*0.14, outX=w*0.86, midY=ly+layerH/2;
+    c.globalAlpha=.3; line(c,0,midY,inX,midY,1); line(c,outX,midY,w,midY,1); c.globalAlpha=1;
+    if(on){
+      var t=performance.now()/240;
+      for(var k=0;k<10;k++){
+        var p=((t+k/10)%1);
+        var x=inX+(outX-inX)*p;
+        ring(c,x,midY,5,2);
+      }
+      arrowH(c,outX,midY,46);
+      txt(c,'Kollektorstrom I  \u2013  GROSS',w/2,h*0.16,15);
+      txt(c,'(flie\u00dft von E nach C durch den Transistor)',w/2,h*0.16+18,11,'#666');
+    }else{
+      c.globalAlpha=.3;
+      line(c,inX,midY,lx,midY,1); line(c,lx+layerW,midY,outX,midY,1);
+      c.globalAlpha=1;
+      txt(c,'kein Kollektorstrom möglich',w/2,h*0.16,15,'#666');
+    }
+
+    // ---- kleiner Basisstrom von unten ----
+    var bPinX=lx+seg*1.5;
+    line(c,bPinX,ly+layerH,bPinX,h*0.88);
+    line(c,bPinX,h*0.88,w*0.20,h*0.88);
+    line(c,w*0.20,h*0.88,w*0.20,midY);
+    line(c,w*0.20,midY,inX,midY);
+    // Batterie im Basiskreis
+    var by=h*0.88;
+    line(c,w*0.20+40,by,w*0.20+58,by,4);      // langer Strich
+    line(c,w*0.20+44,by+5,w*0.20+54,by+5,1.5);
+    txt(c,'+',w*0.20+34,by-2,12);
+    txt(c,'\u2212',w*0.20+64,by-2,12);
+    txt(c,'Basis-Batterie: U (E\u2013B) = '+U.toFixed(1)+' V',w*0.20+150,by+4,12);
+    if(on){
+      var t2=performance.now()/240;
+      for(var k2=0;k2<4;k2++){
+        var p2=((t2*0.6+k2/4)%1);
+        var y=by-(by-(ly+layerH))*p2;
+        ring(c,bPinX,y,3.5,1.5);
+      }
+      txt(c,'Basisstrom I \u2013  klein, aber steuert den grossen!',w*0.42,h*0.86,12,'#666');
+    }
+    txt(c,on? 'LEITET \u2013 U (E\u2013B) \u00fcber der Schwellenspannung (0,7 V)'
+            : 'GESPERRT \u2013 U (E\u2013B) unter der Schwellenspannung (0,7 V)',
+        w/2, 22, 14);
     document.getElementById('trInfo').textContent=
       on? U.toFixed(1)+' V > 0,7 V \u2192 leitet' : (U>0.05? U.toFixed(1)+' V < 0,7 V \u2192 gesperrt' : 'gesperrt');
   }
@@ -870,7 +1026,8 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
 
 /* ---------- 10 Motor ---------- */
 (function(){
-  var cv=document.getElementById('cvMotor'), ang=0, comm=true, speed=0.6;
+  var cv=document.getElementById('cvMotor');
+  var ang=0, comm=true, speed=0.6, lastAng=0, flash=0, flips=0, dirIn=1;
   var sEl=document.getElementById('motSpeed');
   sEl.oninput=function(){speed=+sEl.value/100};
   document.getElementById('motComm').onclick=function(){
@@ -880,56 +1037,86 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
   function draw(){
     var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     c.clearRect(0,0,w,h);
-    var cx=w/2, cy=h*0.52, R=Math.min(w*0.30,h*0.36);
+    var cx=w*0.55, cy=h*0.52, R=Math.min(w*0.26,h*0.34);
+
+    // Polwechsel-Erkennung: alle halbe Umdrehung kippt die Stromrichtung
+    if(comm && ang-lastAng>0){                    // nur bei laufendem Motor
+      var half=Math.floor(ang/Math.PI);
+      var halfOld=Math.floor(lastAng/Math.PI);
+      if(half!==halfOld){ flash=60; flips++; dirIn*=-1; }
+    }
+    lastAng=ang;
+
     // Statoren
     c.strokeStyle='#111'; c.lineWidth=1.5;
-    c.strokeRect(cx-R-66,cy-42,48,84); txt(c,'S',cx-R-42,cy+6,17);
-    c.strokeRect(cx+R+18,cy-42,48,84); txt(c,'N',cx+R+42,cy+6,17);
-    txt(c,'Stator',cx-R-42,cy-52,10,'#666'); txt(c,'Stator',cx+R+42,cy-52,10,'#666');
-    // Rotor
+    c.strokeRect(cx-R-70,cy-44,50,88); txt(c,'S',cx-R-45,cy+7,19);
+    c.strokeRect(cx+R+20,cy-44,50,88); txt(c,'N',cx+R+45,cy+7,19);
+    txt(c,'Stator',cx-R-45,cy-56,10,'#666'); txt(c,'Stator',cx+R+45,cy-56,10,'#666');
+    txt(c,'(Dauer\u2011Magnet)',cx-R-45,cy+64,9,'#666'); txt(c,'(Dauer\u2011Magnet)',cx+R+45,cy+64,9,'#666');
+
+    // Rotor mit N/S-Enden
     c.save(); c.translate(cx,cy); c.rotate(ang);
-    line(c,-R,0,R,0,7);
-    disc(c,R-16,0,11); txtS(c,'N',R-16,4.5,12);
-    disc(c,-R+16,0,11); txtS(c,'S',-R+16,4.5,12);
+    line(c,-R,0,R,0,8);
+    disc(c,R-18,0,12); txtS(c,'N',R-18,4.5,13);
+    disc(c,-R+18,0,12); txtS(c,'S',-R+18,4.5,13);
     c.restore();
-    // Kommutator (mit rotierendem Trennstrich) + Bürsten
-    c.beginPath(); c.arc(cx,cy,30,0,7); c.fillStyle='#fff'; c.fill(); c.stroke();
+
+    // Kommutator: Kreis mit Trennstrich + Strompfeile (richten sich nach dirIn)
+    c.beginPath(); c.arc(cx,cy,32,0,7); c.fillStyle='#fff'; c.fill();
+    c.strokeStyle='#111'; c.lineWidth=1.5; c.stroke();
     c.save(); c.translate(cx,cy); c.rotate(ang);
-    line(c,0,-26,0,26,3.5);
+    line(c,0,-27,0,27,4);
     c.restore();
-    line(c,cx-40,cy-30,cx-24,cy-30,4); line(c,cx+24,cy-30,cx+40,cy-30,4);
-    txt(c,'Kommutator',cx,cy+52,10,'#666');
+    // Strompfeile im Kommutator (drehen mit, zeigen Stromrichtung)
+    var t=performance.now()/300;
+    for(var k=0;k<3;k++){
+      var ph=((t*dirIn+k/3)%1+1)%1;
+      var aRad=ph*2*Math.PI;
+      var ex=cx+Math.cos(aRad)*20, ey=cy+Math.sin(aRad)*20;
+      ring(c,ex,ey,3,1.5);
+    }
+    txt(c,'Kommutator',cx,cy+48,10,'#666');
+
+    // Draht zu den Buersten (links unten) mit Elektronen-Marke
+    var wireX=w*0.14;
+    line(c,wireX,cy,wireX,h-34); line(c,wireX,h-34,cx-32,cy+ (0));
+    // Buersten
+    line(c,cx-38,cy-32,cx-24,cy-32,4); line(c,cx+24,cy-32,cx+38,cy-32,4);
     txt(c,'B\u00fcrsten',cx,cy-44,10,'#666');
-    // Physik
-    if(comm){ ang+=0.02+speed*0.055; }
+
+    // ---- POLWECHSEL-Flash ----
+    if(flash>0){
+      flash--;
+      var a=flash/60;
+      c.globalAlpha=Math.min(1,a*1.5);
+      ring(c,cx,cy,40,4);
+      ring(c,cx,cy,46,2);
+      c.globalAlpha=1;
+      txt(c,'POLWECHSEL!',cx,cy-h*0.30,17);
+      txt(c,'Der Kommutator polte gerade den Strom im Rotor um \u2013',cx,cy-h*0.30+18,11);
+      txt(c,'N und S des Rotors tauschen die Plätze. Deshalb dreht er weiter.',cx,cy-h*0.30+33,11);
+    }
+
+    // Physik-Update
+    if(comm){ ang+=0.02+speed*0.05; }
     else{
-      // ohne Umpolung: Rotor dreht weich in die nächste Ruhestellung (N zeigt zum S-Stator) und STOPPT
       var rest=Math.round((ang-Math.PI/2)/Math.PI)*Math.PI+Math.PI/2;
       var diff=rest-ang;
-      ang+=diff*0.05;                       // exponentielles Auslaufen, kein Ruckeln
+      ang+=diff*0.06;                       // weiches Auslaufen
       if(Math.abs(diff)<0.001) ang=rest;
     }
-    // Erklärung in der Grafik
-    var nAttracts = (comm||Math.abs(ang-(Math.round((ang-Math.PI/2)/Math.PI)*Math.PI+Math.PI/2))<0.02);
-    if(comm){
-      txt(c,'Kommutator AN: Er polt den Strom bei jeder halben Umdrehung um \u2013',w/2,20,12);
-      txt(c,'die Pole des Rotors kehren sich rechtzeitig um \u2192 Dauerdrehung',w/2,38,12);
-    }else{
-      var settled=Math.abs(ang-(Math.round((ang-Math.PI/2)/Math.PI)*Math.PI+Math.PI/2))<0.02;
-      txt(c, settled
-        ? 'Stillstand! Der \u201eN\u201c-Pol des Rotors sitzt am \u201eS\u201c-Pol des Stators \u2013'
-        : 'ohne Umpolung: der Rotor kann nur bis zur Anziehungsstellung pendeln',
-        w/2,20,12);
-      txt(c, settled
-        ? 'ohne Umpolung würde er für immer hier bleiben. Der Kommutator dreht die Pole weiter.'
-        : 'Moment... der Rotor läuft in die Endstellung aus',
-        w/2,38,12);
-    }
+
+    // Erklaerung oben links
+    var settled=!comm&&Math.abs(ang-(Math.round((ang-Math.PI/2)/Math.PI)*Math.PI+Math.PI/2))<0.02;
+    var msg;
+    if(comm)      msg='Kommutator AN: halbe Umdrehung \u2192 POLWECHSEL (bislang '+flips+') \u2192 Dauerdrehung';
+    else if(settled) msg='Kommutator AUS: N des Rotors hat S des Stators erreicht und bleibt HIER stecken \u2013'
+                          +' ohne Umpolung keine Weiterdrehung!';
+    else          msg='Kommutator AUS: der Rotor l\u00e4uft in die Anziehungsstellung aus \u2026';
+    txt(c,msg,w*0.42,22,12, comm?'#111':'#666');
+
     document.getElementById('motInfo').textContent=
-      comm?'rotiert \u2013 Kommutator polt Strom alle halbe Umdrehung um'
-          :(Math.abs(ang-(Math.round((ang-Math.PI/2)/Math.PI)*Math.PI+Math.PI/2))<0.02
-             ?'festgebremst: N und S haben sich gefunden \u2013 ohne Umpolung bleibt alles stehen'
-             :'läuft gerade aus\u2026');
+      comm? 'rotiert \u00b7 Polwechsel bisher: '+flips : (settled?'steckt fest \u2013 ohne Polwechsel kein Weiterdrehen':'l\u00e4uft aus\u2026');
   }
   anims.motor=draw;
 })();
