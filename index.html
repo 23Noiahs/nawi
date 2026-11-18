@@ -33,7 +33,19 @@
   .def{border-left:2px solid var(--ink);padding:2px 0 2px 16px;margin:18px 0;font-size:1.05rem;}
   .note{background:var(--panel);border:1px solid var(--line);padding:12px 16px;margin:16px 0;font-size:.92rem;color:#333;}
   figure{margin:24px 0;border:1px solid var(--line);}
-  canvas{width:100%;display:block;background:#fff;touch-action:none;}
+  canvas{width:100%;height:280px;display:block;background:#fff;touch-action:none;}
+  #cvRub{height:200px}
+  #cvCoulomb{height:260px}
+  #cvField{height:320px}
+  #cvCap{height:260px}
+  #cvSemi{height:320px}
+  #cvDope{height:260px}
+  #cvTrans{height:300px}
+  #cvMag{height:240px}
+  #cvCoil{height:240px}
+  #cvLorenz{height:240px}
+  #cvMotor{height:320px}
+  #cvCharge{height:240px}
   figcaption{font-size:.78rem;color:var(--mid);padding:10px 14px;border-top:1px solid var(--line);}
   .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 14px;border-top:1px solid var(--line);background:var(--panel);}
   .controls input[type=range]{flex:1;min-width:130px;accent-color:#111;}
@@ -320,14 +332,14 @@ var anims={};
 (function loop(){Object.keys(anims).forEach(function(k){try{anims[k]()}catch(e){}});requestAnimationFrame(loop);})();
 
 function fit(cv){
-  if(!cv._set){var r0=cv.getBoundingClientRect();cv._h=r0.height>40?r0.height:240;cv._set=true;}
-  cv._set=false;
+  if(!cv.offsetParent)return null;
   var r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
-  var W=Math.max(60,Math.round(r.width*dpr)), H=Math.max(60,Math.round(dpr*(r.height>40?r.height:240)));
-  if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}
+  var W=Math.round(r.width), H=Math.round(r.height);
+  if(W<10||H<10)return null;
+  if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr;}
   var ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.clearRect(0,0,r.width,cv.height/dpr);
-  return {ctx:ctx,w:r.width,h:cv.height/dpr};
+  ctx.clearRect(0,0,W,H);
+  return {ctx:ctx,w:W,h:H};
 }
 function disc(c,x,y,r){c.beginPath();c.arc(x,y,r,0,7);c.fillStyle='#111';c.fill();}
 function ring(c,x,y,r,w){c.beginPath();c.arc(x,y,r,0,7);c.strokeStyle='#111';c.lineWidth=w||2;c.stroke();}
@@ -347,12 +359,12 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
 (function(){
   var cv=document.getElementById('cvCharge'), moved=0;
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     var bw=210, y0=26, bh=100, xA=30, xB=w-30-bw;
     c.strokeStyle='#111'; c.lineWidth=1; c.strokeRect(xA,y0,bw,bh); c.strokeRect(xB,y0,bw,bh);
     txt(c,'K\u00f6rper A',xA+bw/2,16,12,'#666'); txt(c,'K\u00f6rper B',xB+bw/2,16,12,'#666');
     function row(ox,n,r,colFn){
-      for(var i=0;i<n;i++){var x=ox+14+(i%4)*((bw-28)/3), y=y0+20+Math.floor(i/4)*26; colFn(x,y,r);}
+      for(var i=0;i<n;i++){var x=ox+14+(i%4)*((bw-28)/3), y=y0+20+Math.floor(i/4)*26; colFn(c,x,y,r);}
     }
     row(xA,8,7,plusIcon); row(xB,8,7,plusIcon);
     var eA=8+moved, eB=8-moved;
@@ -372,7 +384,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
 (function(){
   var cv=document.getElementById('cvCoulomb'), sign=-1, rEl=document.getElementById('coulR');
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     var r=+rEl.value, scale=(w-140)/380, y=h/2+18, x1=70, x2=70+r*scale;
     var Frel=(200/r)*(200/r), len=Math.min(150,25+Frel*95);
     if(sign<0){ arrowH(c,x1+28,y,len); arrowH(c,x2+28,y,-len); }
@@ -404,7 +416,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
       : bN+' steht weiter oben \u2192 gibt Elektronen ab \u2192 l\u00e4dt sich <b>positiv</b>. '+aN+' wird <b>negativ</b>.';
   };
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h; tick++;
     var y=h/2;
     c.strokeStyle='#111'; c.lineWidth=1;
     c.strokeRect(w*0.12,y-34,w*0.3,68); c.strokeRect(w*0.58,y-34,w*0.3,68);
@@ -415,9 +427,15 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
       var x0=fromA?w*0.42:w*0.58, x1=fromA?w*0.58:w*0.42;
       for(var i=0;i<4;i++){
         var p=((tick*3+i*46)%110)/110;
-        ring(c,x0+(x1-x0)*p,y+Math.sin((tick+i*20)/7)*16,4,1.5);
+        ring(c,x0+(x1-x0)*p,y+Math.sin((tick+i*20)/7)*16,6,1.5);
+        txt(c,'\u2212',x0+(x1-x0)*p,y+Math.sin((tick+i*20)/7)*16+3,8);
       }
-      line(c,x0,y-52,x1,y-52,1);
+      c.globalAlpha=.4;
+      line(c,x0-(fromA?26:-26)*1,y-52,x1+(fromA?0:0),y-52,1);
+      c.globalAlpha=1;
+      txt(c,'Elektronen '+ (fromA?'\u2192':'\u2190'),(x0+x1)/2,y-60,12,'#666');
+    }else{
+      txt(c,'\u201eReiben\u201c dr\u00fccken \u2192 Elektronen wandern zum Stoff weiter unten in der Reihe',(w/2),y+2,11,'#999');
     }
   }
   anims.rub=draw;
@@ -428,7 +446,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
   var cv=document.getElementById('cvField');
   var charges=[{fx:0.34,q:1},{fx:0.66,q:-1}], drag=-1, HH=0;
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; HH=h; c.clearRect(0,0,w,h);
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h; HH=h;
     var cs=charges.map(function(q){return{x:q.fx*w,y:h/2,q:q.q}});
     function E(x,y){
       var fx=0,fy=0;
@@ -480,7 +498,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
   document.getElementById('capCharge').onclick=function(){target=100;dis=false};
   document.getElementById('capDischarge').onclick=function(){target=0;dis=true};
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     q+=(target-q)*0.05;
     var px=w/2, pw=Math.max(90,w*0.24), ph=h*0.46, top=h*0.28;
     c.globalAlpha=.35;
@@ -514,7 +532,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
   var cv=document.getElementById('cvSemi'), tEl=document.getElementById('semiT');
   var els=[], tick=0, N=8, M=4;
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h; tick++;
     var T=+tEl.value, tempC=Math.round(T*2-10), want=Math.round(T/100*16);
     while(els.length<want)
       els.push({x:0.1+Math.random()*0.8,y:0.24+Math.random()*0.6,
@@ -550,7 +568,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
 (function(){
   var cv=document.getElementById('cvDope'), mode='none', tick=0;
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h; tick++;
     var N=5,M=4, mx=w*0.1, my=h*0.16, gw=w*0.8, gh=h*0.58, sx=gw/(N-1), sy=gh/(M-1);
     c.globalAlpha=.5;
     for(var j=0;j<M;j++)for(var i=0;i<N-1;i++) line(c,mx+i*sx+10,my+j*sy,mx+(i+1)*sx-10,my+j*sy,1);
@@ -586,7 +604,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
 (function(){
   var cv=document.getElementById('cvTrans'), uEl=document.getElementById('trU');
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     var U=+uEl.value, on=U>0.7;
     var gain=Math.max(0,Math.min(100,(U-0.7)*22));
     var cw=w*0.24, ch=h*0.46, cy=h*0.42;
@@ -653,7 +671,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
   var cv=document.getElementById('cvMag'), lp=1;
   document.getElementById('magFlip').onclick=function(){lp*=-1};
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     var y=h/2+4, x1=w*0.27, x2=w*0.73, mw=110, mh=52;
     function magnet(x,pole){
       var l=pole>0?'N':'S', r=pole>0?'S':'N';
@@ -685,7 +703,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
 (function(){
   var cv=document.getElementById('cvCoil'), iEl=document.getElementById('coilI'), tick=0;
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h; tick++;
     var I=+iEl.value/100, cy=h/2;
     var sx=w*0.34, sw=w*0.3;
     c.globalAlpha=.35;
@@ -727,7 +745,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
     return Math.min(h-14,Math.max(14,y));
   }
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h); tick++;
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h; tick++;
     var top=flip>0?'S':'N', bot=flip>0?'N':'S';
     line(c,0,10,w,10,1); txt(c,top+' \u00b7 \u00b7 \u00b7',w-40,15,10,'#666');
     line(c,0,h-10,w,h-10,1); txt(c,bot+' \u00b7 \u00b7 \u00b7',w-40,h-3,10,'#666');
@@ -756,7 +774,7 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
     this.textContent=comm?'Kommutator AUS':'Kommutator AN';
   };
   function draw(){
-    var f=fit(cv), c=f.ctx, w=f.w, h=f.h; c.clearRect(0,0,w,h);
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     var cx=w/2, cy=h/2, R=Math.min(w,h)*0.34;
     c.strokeStyle='#111'; c.lineWidth=1;
     c.strokeRect(cx-R-64,cy-40,44,80); txt(c,'S',cx-R-42,cy+5,15);
