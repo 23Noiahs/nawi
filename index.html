@@ -232,7 +232,7 @@
       <input type="range" id="trU" min="0" max="12" value="0" step="0.1">
       <span class="val" id="trInfo"></span>
     </div>
-    <figcaption><b>Ablesen:</b>Der Kasten in der Mitte ist der npn‑Transistor: drei Schichten Emitter–Basis–Kollektor (n‑p‑n). Es gibt zwei Stromkreise: oben den großen Emitter–Kollektor‑Kreis mit der Batterie Uᶙᶜ, unten den kleinen Basis‑Kreis mit der Batterie Uᴅₑ – deren Spannung stellst du mit dem Regler ein. <b>GESPERRT</b> (unter 0,7 V): Der p‑n‑Übergang sperrt wie ein geschlossenes Ventil – kein Kollektorstrom. <b>LEITET</b> (über 0,7 V): Der kleine Basisstrom Iᵇ (wenige Punkte) öffnet den Transistor, und der große Kollektorstrom Iᶜ (viele Punkte, dicker Pfeil) fließt durch. Kleiner Steuerstrom, große Wirkung – daher Verstärker und Schalter.</figcaption>
+    <figcaption><b>So funktioniert der npn‑Transistor:</b> In der Mitte siehst du die drei Schichten n‑p‑n mit den drei Anschlüssen <b>E</b>mitter, <b>B</b>asis und <b>C</b>ollektor. Es gibt <b>zwei getrennte Stromkreise</b>: den kleinen Basis‑Kreis (unten, Batterie U(E–B) – dein Regler) und den großen Emitter–Kollektor‑Kreis (Batterie U(E–C)). <b>GESPERRT</b> (Regler unter 0,7 V): Am p‑n‑Übergang zur Kollektor‑Schicht sperrt die Schicht wie ein geschlossenes Ventil – die Elektronen des Emitter–Kollektor‑Kreises können nicht durch, es fließt <b>kein</b> Kollektorstrom. <b>LEITET</b> (Regler über 0,7 V, der Schwellenspannung von Silizium): Der kleine Basisstrom I(B) fließt (wenige Punkte) und macht die dünne Basis‑Schicht leitend – das Ventil öffnet sich, und der <b>große Kollektorstrom I(C)</b> fließt von E nach C durch den ganzen Transistor (viele Punkte). <b>Merksatz:</b> Ein winziger Steuerstrom am Basis‑Anschluss schaltet einen viel größeren Strom – der Transistor verstärkt (z. B. Mikrofon→Lautsprecher) und schaltet (Computer‑Chips: Milliarden Transistoren als winzige Schalter).</figcaption>
   </figure>
 </section>
 
@@ -246,18 +246,34 @@
   <figure>
     <canvas id="cvMag"></canvas>
     <div class="controls">
-      <button id="magFlip">Linken Pol umkehren</button>
+      <button id="magFlip">Pole umkehren (S–N / N–N)</button>
+      <label>Abstand</label>
+      <input type="range" id="magDist" min="20" max="240" value="110">
       <span class="val" id="magInfo"></span>
     </div>
-    <figcaption>Ungleichnamige Pole ziehen sich an, gleichnamige stoßen sich ab. Feldlinien verlaufen außerhalb des Magneten vom Nord- zum Südpol.</figcaption>
+    <figcaption>Mit dem Abstandsregler rückst du die Magnete näher zusammen oder weiter auseinander: <b>je näher die Pole, desto stärker die Kraft</b> (Pfeile und Kraft-Balken zeigen es). Ungleichnamige Pole (S–N) ziehen sich an, gleichnamige (N–N) stoßen sich ab. Feldlinien verlaufen außerhalb eines Magneten vom Nord- zum Südpol.</figcaption>
   </figure>
 </section>
 
 <section class="slide" data-title="Elektromagnet & Lorentzkraft">
   <div class="num">09</div><h2>Elektromagnet &amp; Lorentzkraft</h2>
-  <p><b>Bewegte elektrische Ladungen erzeugen ein Magnetfeld.</b></p>
-  <p>Ein <b>Elektromagnet</b> besteht aus einer <b>stromdurchflossenen Spule</b>, in der sich aufgrund des Stromflusses ein Magnetfeld aufbaut.</p>
-  <p>Bewegte Ladungen erzeugen nicht nur ein Magnetfeld – sie erfahren <b>im Magnetfeld auch die Wirkung einer Kraft</b>: die <b>Lorentzkraft</b>.</p>
+  <p>Grundlage dieses Kapitels: <b>Bewegte elektrische Ladungen erzeugen ein Magnetfeld.</b> (Umgekehrt gilt: Ein Magnetfeld wirkt mit einer Kraft auf bewegte Ladungen.) Das erlaubt zwei wichtige Bauteile: den <b>Elektromagneten</b> und (zusammen mit der Lorentzkraft) den <b>Elektromotor</b>.</p>
+  <h3>Elektromagnet</h3>
+  <p>Ein <b>Elektromagnet</b> besteht aus einer <b>stromdurchflossenen Spule</b> (Drahtwicklungen), in der sich aufgrund des Stromflusses ein <b>Magnetfeld</b> aufbaut – die Spule verhält sich wie ein Stabmagnet mit Nord- und Südpol. Wichtige Punkte:</p>
+  <ul>
+    <li><b>Vorteil gegenüber dem Permanentmagneten:</b> Man kann ihn <b>ein- und ausschalten</b> (Strom an/aus) und die Stärke regeln (mehr Strom = stärkeres Feld). Auch die <b>Pole</b> lassen sich durch Umpolung der Stromrichtung umkehren.</li>
+    <li><b>Stärker wird das Feld</b> durch: <b>mehr Strom</b>, <b>mehr Windungen</b> der Spule und einen <b>Eisenkern</b> im Inneren (der selbst magnetisiert wird).</li>
+    <li><b>Anwendungen:</b> Relais (Stromschalter per Elektromagnet), Kran mit Magnet zum Heben von Eisenschrott, Türklingel/Lautsprecher, Magnetventile, MRT-Scanner, Teilchenbeschleuniger.</li>
+  </ul>
+  <h3>Lorentzkraft</h3>
+  <p>Bewegte Ladungen erzeugen nicht nur selbst ein Magnetfeld – sie erfahren <b>im Magnetfeld auch die Wirkung einer Kraft</b>: die <b>Lorentzkraft</b>. Sie ist die Kraft, die ein Magnetfeld auf einen <b>bewegten</b> stromdurchflossenen Leiter oder ein fliegendes geladenes Teilchen ausübt. Wichtig:</p>
+  <ul>
+    <li>Die Lorentzkraft wirkt <b>senkrecht zur Bewegungsrichtung</b> der Ladung und senkrecht zum Magnetfeld – sie <b>lenkt</b> die Ladung daher ab (Kreis- oder Schraubenbahn), statt sie zu beschleunigen.</li>
+    <li><b>Keine Bewegung → keine Lorentzkraft:</b> Eine ruhende Ladung spürt keine Kraft. Umso schneller die Ladung und je stärker das Feld, desto größer die Kraft.</li>
+    <li><b>Richtung</b> (modellhaft „Rechte-Hand-Regel“/UVW-Regel): Zeigt der Daumen in Bewegungsrichtung der positiven Ladung und der Zeigefinger vom N- zum S-Pol (Feldrichtung), dann zeigt der Mittelfinger die Kraftrichtung. Bei <b>negativen Ladungen</b> (Elektronen) ist die Richtung genau umgekehrt, bei <b>umgekehrtem Feld</b> ebenfalls.</li>
+    <li><b>Anwendungen:</b> Elektromotor (Kraft auf stromdurchflossene Rotor-Leitungen), Fernseher/Bildschirme alter Art (Ablenkung des Elektronenstrahls), Massenspektrometer, Teilchenbeschleuniger.</li>
+  </ul>
+  <p class="def"><b>Merke:</b> Elektromagnet = Erzeugung eines Magnetfelds durch Strom. Lorentzkraft = Kraft des Magnetfelds auf bewegte Ladungen. Beides zusammen macht den Motor möglich.</p>
   <figure>
     <canvas id="cvCoil"></canvas>
     <div class="controls">
@@ -265,7 +281,7 @@
       <input type="range" id="coilI" min="0" max="100" value="0">
       <span class="val" id="coilInfo"></span>
     </div>
-    <figcaption>Ohne Strom kein Feld. Mit steigender Stromstärke baut sich das Magnetfeld der Spule auf.</figcaption>
+    <figcaption>Ohne Strom (I = 0) gibt es kein Magnetfeld. Erhöhe die Stromstärke: Die Spule wird zum Magneten – die Feldlinien (Ellipsen) werden deutlicher und die Pole N und S erkennen. Mehr Strom = stärkeres Feld (funktioniert genau wie im Versuch oben).</figcaption>
   </figure>
   <figure>
     <canvas id="cvLorenz"></canvas>
@@ -273,7 +289,7 @@
       <button id="lorFlip">Magnetfeld umkehren</button>
       <span class="val" id="lorInfo"></span>
     </div>
-    <figcaption>Bewegte Ladungsträger (Linien) werden im Feld senkrecht zu ihrer Flugrichtung abgelenkt – die Lorentzkraft. Bei umgekehrtem Feld kehrt sich die Ablenkung um.</figcaption>
+    <figcaption>Das geladene Teilchen (+) fliegt von links ins Magnetfeld (Feldlinien verlaufen von Polplatte zu Polplatte, Pfeile zeigen von N nach S). Im Feld greift die <b>Lorentzkraft</b> an: Sie steht <b>senkrecht zur Bewegungsrichtung</b> (Pfeil am Teilchen) und lenkt das Teilchen auf einer gebogenen Bahn ab. Kehre mit dem Button das Feld um → die Ablenkrichtung dreht sich aufs Gegenüber!</figcaption>
   </figure>
 </section>
 
@@ -582,7 +598,13 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
   var cv=document.getElementById('cvCap'); var q=0, target=0, dis=false, tick=0;
   document.getElementById('capCharge').onclick=function(){target=100;dis=false};
   document.getElementById('capDischarge').onclick=function(){target=0;dis=true};
-  // Pfad-Helfer: Punkt entlang einer Polylinie
+  function arrowV(c,x,y,len){        // senkrechter Pfeil
+    var dir=Math.sign(len)||1,L=Math.abs(len);
+    line(c,x,y,x,y+dir*L,3);
+    c.beginPath();
+    c.moveTo(x,y+dir*L); c.lineTo(x-5,y+dir*L-9*dir); c.lineTo(x+5,y+dir*L-9*dir);
+    c.closePath(); c.fillStyle='#111'; c.fill();
+  }
   function polyPoint(pts,t){
     var segs=[],L=0;
     for(var i=0;i<pts.length-1;i++){
@@ -599,88 +621,93 @@ function minusIcon(c,x,y,r){ ring(c,x,y,r,2); txt(c,'\u2212',x,y+r*0.4,Math.roun
     }
     return pts[pts.length-1];
   }
-  function polyDraw(c,pts){
-    c.beginPath(); c.moveTo(pts[0][0],pts[0][1]);
-    for(var i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);
-    c.stroke();
-  }
   function draw(){
     var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     c.clearRect(0,0,w,h); tick++;
-    q+=(target-q)*0.05;
+    q+=(target-q)*0.013;
+    var flowing=Math.abs(q-target)>0.8;
 
-    // Anordnung
-    var PL=w*0.42, PR=w*0.62;          // Platten x
-    var pTop=h*0.34, ph=h*0.42;         // Platten: y, Hoehe
-    var wireY=h*0.22;                   // obere Verdrahtung
-    var btY=h*0.86;                     // Batterie-Hoehe
-    var bxA=w/2-16, bxB=w/2+16;         // Batterie-Kontakte
+    var PL=w*0.44, PR=w*0.60;           // Platten x
+    var pTop=h*0.36, ph=h*0.36;         // Platten y/Hoehe
+    var btY=h*0.88;                     // Batteriezeile
+    var bxA=w/2-16, bxB=w/2+16;         // Batteriepole (Kontakte)
+
+    // ---- Drähte: Platten oben -> runter -> innen zu den Polen ----
+    c.lineWidth=1.5;
+    var leftX=PL-40, rightX=PR+40;      // Draht verlaeuft seitlich vorbei
+    var leftPath=[[PL,pTop],[PL,h*0.62],[bxA+40,h*0.80],[bxA+10,btY-16],[bxA,btY]];
+    // einfacher & klar: vom Plattenfuss gerade runter, dann schraeg zum Pol
+    leftPath=[[PL,pTop],[PL,btY-24],[bxA,btY]];
+    var rightPath=[[PR,pTop],[PR,btY-24],[bxB,btY]];
+    c.beginPath(); c.moveTo(leftPath[0][0],leftPath[0][1]);
+    for(var i=1;i<leftPath.length;i++)c.lineTo(leftPath[i][0],leftPath[i][1]);
+    c.moveTo(rightPath[0][0],rightPath[0][1]);
+    for(var j=1;j<rightPath.length;j++)c.lineTo(rightPath[j][0],rightPath[j][1]);
+    c.stroke();
 
     // ---- Platten ----
     c.fillStyle='#111';
     c.fillRect(PL-6,pTop,12,ph);
     c.fillRect(PR-6,pTop,12,ph);
-    txt(c,'Elektronenmangel',PL,pTop+ph+18,11,'#666');
-    txt(c,'Elektronenüberschuss',PR,pTop+ph+18,11,'#666');
-
-    // ---- Batterie (unten Mitte) ----
-    line(c,bxA,btY-h*0.10,bxA,btY+h*0.10,5);      // langer Strich = +
-    line(c,bxB,btY-h*0.05,bxB,btY+h*0.05,3);      // kurzer Strich = −
-    txt(c,'+',bxA-12,btY-h*0.10+4,14);
-    txt(c,'−',bxB+12,btY+h*0.05+4,14);
-    txt(c,'Batterie',w/2,btY+h*0.10+18,12,'#666');
-
-    // ---- Leitungen (symmetrisch) ----
-    c.lineWidth=1.5;
-    var leftPath=[[PL,pTop],[PL,wireY],[w*0.14,wireY],[w*0.14,btY],[bxA,btY]];
-    var rightPath=[[PR,pTop],[PR,wireY],[w*0.86,wireY],[w*0.86,btY],[bxB,btY]];
-    polyDraw(c,leftPath); polyDraw(c,rightPath);
-
-    // ---- Ladungen auf den Platten ----
+    txt(c,'Platte +',PL,pTop-14,12);
+    txt(c,'Platte \u2212',PR,pTop-14,12);
+    txt(c,'Elektronenmangel',PL,pTop+ph+20,11,'#666');
+    txt(c,'Elektronen\u00fcberschuss',PR,pTop+ph+20,11,'#666');
     var n=Math.round(q/100*4);
-    for(var i=0;i<n;i++){
-      var yy=pTop+12+i*(ph-24)/3;
-      txt(c,'+',PL-0,yy+5,16,'#111');
-      txt(c,'−',PR+0,yy+5,16,'#111');
+    for(var k=0;k<n;k++){
+      var yy=pTop+12+k*(ph-24)/3;
+      txt(c,'+',PL,yy+5,16);
+      txt(c,'\u2212',PR,yy+5,16);
     }
-    txt(c,'Platte +',PL,pTop-12,12);
-    txt(c,'Platte −',PR,pTop-12,12);
 
-    // ---- E-Feld zwischen den Platten (Pfeile von + nach −) ----
+    // ---- E-Feld ----
     if(q>3){
-      for(var k=1;k<=3;k++){
-        var ly=pTop+8+(k-0.5)*(ph-16)/3;
+      for(var k2=1;k2<=3;k2++){
+        var ly=pTop+8+(k2-0.5)*(ph-16)/3;
         line(c,PL+8,ly,PR-8,ly,1.5);
         c.beginPath();
         c.moveTo(PR-8,ly); c.lineTo(PR-16,ly-4); c.lineTo(PR-16,ly+4);
-        c.closePath(); c.fillStyle='#111'; c.fill();
+        c.closePath(); c.fill();
       }
-      txt(c,'E-Feld',w/2,pTop-30,13);
+      txt(c,'E-Feld',w*0.52,pTop+h*0.06,12);
     }
 
-    // ---- wandernde Elektronen: NUR waehrend geladen/entladen wird ----
-    var flowing=Math.abs(q-target)>1.5;
+    // ---- Batterie (zwischen den Drahtenden) ----
+    line(c,bxA,btY-18,bxA,btY+18,5);      // langer Strich = +
+    line(c,bxB,btY-9,bxB,btY+9,3);        // kurzer Strich = \u2212
+    txt(c,'+',bxA-13,btY+5,14);
+    txt(c,'\u2212',bxB+13,btY+5,14);
+    txt(c,'Batterie',w/2,btY+32,12,'#666');
+
+    // ---- Elektronen: nur im Lade-/Entladevorgang, RICHTUNG eindeutig ----
+    // Laden: Elektronen steigen auf der MINUS-Seite ZUR Platte hoch und
+    //        fliessen auf der PLUS-Seite VON der Platte runter zum Pol.
     if(q>2 && flowing){
       var nd=5;
       for(var d=0;d<nd;d++){
-        var p=((( (tick*0.01)*(dis?-1:1) )+d/nd)%1+1)%1;
-        var lpt=polyPoint(leftPath, dis?p:1-p);
-        var rpt=polyPoint(rightPath, dis?1-p:p);
-        ring(c,lpt[0],lpt[1],4,1.5);
-        ring(c,rpt[0],rpt[1],4,1.5);
+        var p=(tick*0.010+d/nd)%1;
+        var lpp=dis? 1-p : p;         // Plus-Draht
+        var rpp=dis? p : 1-p;         // Minus-Draht
+        var lpt=polyPoint(leftPath,lpp), rpt=polyPoint(rightPath,rpp);
+        disc(c,lpt[0]-8,lpt[1],4.5);          // Punkte NEBEN dem Draht
+        disc(c,rpt[0]+8,rpt[1],4.5);
       }
-      txt(c,'Elektronen',(w*0.14+PL)/2,wireY-8,10,'#666');
-      txt(c,'Elektronen',(PR+w*0.86)/2,wireY-8,10,'#666');
+      // Richtungspfeile: Laden -> links runter / rechts hoch; Entladen umgekehrt
+      var dir=dis?-1:1;
+      arrowV(c,PL-16,pTop+ph-20, dir*44);
+      arrowV(c,PR+16,pTop+ph+50, -dir*44);
+      txt(c, dir>0? 'Elektronen zur Plusseite ab' : 'Elektronen zur\u00fcck zur Platte +', PL-16, pTop+ph+56,10,'#666');
+      txt(c, dir>0? 'Elektronen vom Minuspol zur Platte \u2212' : 'Elektronen von der Platte \u2212 zum Pol', PR+16, pTop+ph+70,10,'#666');
     }
 
     // ---- Status ----
     var st;
-    if(flowing && !dis)      st='LADEN – Elektronen wandern zur −-Platte, das E-Feld wächst';
-    else if(flowing && dis)  st='ENTLADEN – die gespeicherte Ladung fließt zurück (z. B. durch eine LED)';
-    else if(q>=98)           st='VOLL GELADEN – die Elektronen RUHEN: Energie bleibt gespeichert, bis sich die Spannung ändert';
-    else if(q<=2)            st='LEER – erst „Laden“ drücken';
-    txt(c,st,w*0.5, h*0.10, 14, '#111');
-    document.getElementById('capInfo').textContent='Ladung '+Math.round(q)+' % '+(flowing?(dis?'· entlädt':'· lädt'):'· ruhend');
+    if(flowing && !dis)      st='LADEN \u2013 Elektronen wandern zur \u2212-Platte, das E-Feld w\u00e4chst';
+    else if(flowing && dis)  st='ENTLADEN \u2013 die gespeicherte Ladung flie\u00dft zur\u00fcck (z. B. durch eine LED)';
+    else if(q>=98)           st='VOLL GELADEN \u2013 die Elektronen RUHEN. Energie bleibt gespeichert, bis sich die Spannung \u00e4ndert';
+    else if(q<=2)            st='LEER \u2013 \u201eLaden\u201c dr\u00fccken';
+    txt(c,st,w*0.5-70,16,13,'#111');
+    document.getElementById('capInfo').textContent='Ladung '+Math.round(q)+' % '+(flowing?(dis?'\u00b7 entl\u00e4dt':'\u00b7 l\u00e4dt'):'\u00b7 ruhend');
   }
   anims.cap=draw;
 })();
@@ -849,12 +876,13 @@ var gHop=null, gTrail=[];
     txt(c,dopeMode==='n'?'P':(dopeMode==='p'?'B':'Si'),fax,fay+3,8);
 
     var legendY=my+gh+28;
-    // Legende
-    disc(c,mx-6,h*0.09,4); txt(c,'= Atom (Si)',mx+14,h*0.098,11,'#666');
-    disc(c,mx+90,h*0.09,2.5); txt(c,'= gebundenes VE',mx+116,h*0.098,11,'#666');
-    dashring(c,mx+212,h*0.09,6); txt(c,'= Loch (+)',mx+244,h*0.098,11,'#666');
-    ring(c,mx+306,h*0.09,5,1.5); txt(c,'\u2212',mx+306,h*0.096,8);
-    txt(c,'= freies/springendes Elektron',mx+400,h*0.098,11,'#666');
+    // Legende kompakt (eine Zeile, passt auch mobil)
+    txt(c,'Legende:',w*0.055,h*0.075,11,'#666');
+    disc(c,w*0.135,h*0.070,4);  txt(c,'Atom',w*0.175,h*0.078,11,'#666');
+    disc(c,w*0.225,h*0.070,2.5);txt(c,'gebundenes VE',w*0.290,h*0.078,11,'#666');
+    dashring(c,w*0.385,h*0.070,6); txt(c,'Loch (+)',w*0.440,h*0.078,11,'#666');
+    ring(c,w*0.520,h*0.070,5,1.5); txt(c,'\u2212',w*0.520,h*0.077,8);
+    txt(c,'freies Elektron',w*0.580,h*0.078,11,'#666');
     if(dopeMode==='n'){
       for(var j3=0;j3<GM;j3++)for(var i4=0;i4<GN-1;i4++) disc(c,mx+i4*sx+sx/2,my+j3*sy,3.5);
       gEls.forEach(function(e,idx){
@@ -863,18 +891,26 @@ var gHop=null, gTrail=[];
         if(e.y<0.28||e.y>0.66)e.vy*=-1;
         ring(c,e.x*w,e.y*h,6,2); txt(c,'−',e.x*w,e.y*h+2.5,10);
       });
-      txt(c,'n-Dotierung im Gitter: die freien Elektronen (5. HG) wandern durch den ganzen Kristall',w/2,h*0.15,12,'#111');
+      txt(c,'n-Dotierung: die freien \u00dcberschuss-Elektronen (5. HG) wandern durch den Kristall',w/2,h*0.135,12,'#111');
       txt(c,'neben jedem Atom sitzt ein gebundenes Valenzelektron – die gefüllten Ringe sind die Überschuss-Elektronen',w/2,legendY,11,'#666');
     }else if(dopeMode==='p'){
       var hb={x:mx+gHole.col*sx+sx/2, y:my+gHole.row*sy};
       // Sprung starten: Nachbarbindung (rechts oder darunter) springt ins Loch
       if(!gHop && (frameCount()%45)===0){
-        var choices=[];
-        if(gHole.col<GN-2) choices.push({col:gHole.col+1,row:gHole.row});
-        if(gHole.row<GM-1) choices.push({col:gHole.col,row:gHole.row+1});
-        if(choices.length){
-          var pick=choices[Math.floor(Math.random()*choices.length)];
-          gHop={from:pick,to:{col:gHole.col,row:gHole.row},t:0};
+        // Endlos-Wandern, NIE Stopp:
+        var fc=gHole.col, fr=gHole.row;
+        if(fc<GN-2 && Math.random()<0.8){
+          // normaler Sprung: Nachbarbindung rechts springt ins Loch
+          gHop={from:{col:fc+1,row:fr},to:{col:fc,row:fr},t:0};
+        }else if(fr<GM-1){
+          // Zeilenumbruch: das Loch startet vorne in der naechsten Zeile
+          if(fc<GN-2){ gHop={from:{col:fc+1,row:fr},to:{col:fc,row:fr},t:0}; }
+          else{ gHole={col:0,row:fr+1}; gTrail=[]
+          }
+        }else{
+          // unten rechts angekommen: vorne oben erneut anfangen
+          if(fc<GN-2){ gHop={from:{col:fc+1,row:fr},to:{col:fc,row:fr},t:0}; }
+          else{ gHole={col:0,row:0}; gTrail=[]; }
         }
       }
       for(var j4=0;j4<GM;j4++)for(var i5=0;i5<GN-1;i5++){
@@ -916,83 +952,91 @@ var gHop=null, gTrail=[];
 /* ---------- 07 Transistor ---------- */
 (function(){
   var cv=document.getElementById('cvTrans'), uEl=document.getElementById('trU');
-  var lastU=null, dirty=true;
-  uEl.addEventListener('input',function(){dirty=true});
+  var t=0;
+  uEl.addEventListener('input',function(){});
   function draw(){
-    var U=+uEl.value;
-    if(!dirty && U===lastU) return;               // nur neu zeichnen bei Aenderung -> KEIN laggy Dauer-Redraw
-    var f=fit(cv); if(!f)return;                  // unsichtbar? nichts verbrauchen!
-    var c=f.ctx, w=f.w, h=f.h;
-    lastU=U; dirty=false;
-    c.clearRect(0,0,w,h);
-    var on=U>0.7;
+    var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
+    c.clearRect(0,0,w,h); t+=1;
+    var U=+uEl.value, on=U>0.7;
 
-    // mittlerer npn-Block
-    var segW=w*0.11, segH=h*0.34, lx=(w-segW*3)/2, ly=h*0.40;
-    c.lineWidth=2;
+    // ---------- Schichten ----------
+    var segW=Math.min(96,w*0.13), segH=h*0.30, lx=(w-segW*3)/2, ly=h*0.40;
+    c.lineWidth=2; c.strokeStyle='#111';
+    // n-Emitter
     c.strokeRect(lx,ly,segW,segH);
+    // p-Basis: ELIDE schwarz
     c.fillStyle='#111'; c.fillRect(lx+segW,ly,segW,segH);
+    // n-Kollektor
     c.strokeRect(lx+2*segW,ly,segW,segH);
-    txt(c,'n',lx+segW/2,ly+segH/2+7,22);
-    txtS(c,'p',lx+segW*1.5,ly+segH/2+7,22);
-    txt(c,'n',lx+segW*2.5,ly+segH/2+7,22);
-    txt(c,'Emitter',lx+segW/2,ly+segH+22,12);
-    txt(c,'Basis',lx+segW*1.5,ly+segH+22,12);
-    txt(c,'Kollektor',lx+segW*2.5,ly+segH+22,12);
+    txt(c,'n',lx+segW/2,ly+segH/2+7,20);
+    txtS(c,'p',lx+segW*1.5,ly+segH/2+7,20);
+    txt(c,'n',lx+segW*2.5,ly+segH/2+7,20);
+    // Anschluesse
+    txt(c,'E',lx+segW/2,ly+segH+24,15);
+    txt(c,'B',lx+segW*1.5,ly+segH+24,15);
+    txt(c,'C',lx+segW*2.5,ly+segH+24,15);
+    txt(c,'Emitter',lx+segW/2,ly+segH+42,10,'#666');
+    txt(c,'Basis',lx+segW*1.5,ly+segH+42,10,'#666');
+    txt(c,'Kollektor',lx+segW*2.5,ly+segH+42,10,'#666');
 
-    // Sperr-Block am p-n-Uebergang
-    if(!on){
-      c.fillRect(lx+2*segW-4,ly-12,8,segH+24);
-      c.fillRect(lx+segW-4,ly-12,8,segH+24);
-    }
+    // ---------- Statuszeile ----------
+    txt(c, on? 'LEITET' : 'GESPERRT \u2013 Ventil zu', w/2, 24, 17);
+    txt(c,'Basis‑Spannung U(E\u2013B) = '+U.toFixed(1)+' V \u00b7 Schwelle 0,7 V \u00b7 '+(on?'Basisstrom \u00f6ffnet den Transistor':'kein Basisstrom'),
+        w/2, 44, 12, '#666');
 
-    // Statustext oben
-    txt(c, on? 'LEITET: Basisstrom \u00f6ffnet den Transistor'
-              : 'GESPERRT: kein Basisstrom \u2192 Ventil zu',
-        w/2,26,15);
-    txt(c,'U (E\u2013B) = '+U.toFixed(1)+' V   \u00b7   Schwelle = 0,7 V',w/2,48,12,'#111');
-
-    // E-C-Strom
+    // ---------- grosser Emitter-Kollektor-Strom ----------
     var midY=ly+segH/2;
-    line(c,w*0.10,midY,lx,midY,2);
-    line(c,lx+3*segW,midY,w*0.90,midY,2);
+    line(c,w*0.08,midY,lx,midY,2);
+    line(c,lx+3*segW,midY,w*0.92,midY,2);
+    // Batterie U(E-C) rechts
+    line(c,w*0.92,midY-18,w*0.92,midY+18,5);
+    line(c,w*0.92+14,midY-9,w*0.92+14,midY+9,3);
+    txt(c,'+',w*0.92-11,midY-12,12);
+    txt(c,'\u2212',w*0.92+26,midY+14,12);
+    txt(c,'Batterie U(E\u2013C)',w*0.92+6,midY+34,10,'#666');
     if(on){
-      var nD=9;
-      for(var k2=0;k2<nD;k2++){
-        var x=w*0.10+(w*0.80)*(k2+0.5)/nD;
+      // Elektronen wandern durch den Transistor E -> C (viele)
+      for(var k=0;k<10;k++){
+        var p=((t*0.006)+k/10)%1;
+        var x=w*0.08+(w*0.84)*p;
         ring(c,x,midY,5,2);
       }
-      arrowH(c,w*0.90,midY,50);
-      txt(c,'Kollektorstrom: GROSS',w*0.62,midY-16,13);
+      arrowH(c,w*0.70,midY+22,60);
+      txt(c,'I(C): KOLLEKTORSTROM \u2013 gross',w/2,midY+42,13);
     }else{
-      txt(c,'kein Kollektorstrom',w*0.62,midY-16,13,'#666');
-      // gesperrt: Striche als Blockade-Marker
-      line(c,w*0.62,midY-4,w*0.66,midY+4,2);
-      line(c,w*0.66,midY-4,w*0.62,midY+4,2);
+      // Ventil zu: Block am p-n-Uebergang + X
+      c.fillStyle='#111';
+      c.fillRect(lx+2*segW-3,ly-8,6,segH+16);
+      c.font='bold 16px sans-serif';
+      txt(c,'zu',lx+2*segW,ly-16,12);
+      txt(c,'kein Kollektorstrom m\u00f6glich \u2013 der \u00dcbergang sperrt',
+          w/2,midY+18,12,'#666');
+      txt(c,'(liegt nur an U(E\u2013B) \u2013 steig den Regler \u00fcber 0,7 V!)',
+          w/2,midY+36,11,'#666');
     }
 
-    // Basis-Stromkreis
+    // ---------- kleiner Basis-Stromkreis ----------
     var bPinX=lx+segW*1.5;
-    line(c,bPinX,ly+segH,bPinX,h*0.90);
-    line(c,bPinX,h*0.90,w*0.16,h*0.90);
-    line(c,w*0.16,h*0.90,w*0.16,midY);
-    line(c,w*0.16,midY,w*0.10,midY);
-    // Batterie
-    var by=h*0.90;
-    line(c,w*0.16+46,by-2,w*0.16+62,by-2,4);
-    line(c,w*0.16+50,by+4,w*0.16+58,by+4,2);
-    txt(c,'+',w*0.16+40,by+1,12);
-    txt(c,'\u2212',w*0.16+68,by+1,12);
+    var by=h*0.92;
+    line(c,bPinX,ly+segH,bPinX,by);
+    line(c,bPinX,by,w*0.08,by);
+    line(c,w*0.08,by,w*0.08,midY);
+    // Batterie U(E-B) unten
+    line(c,w*0.08+46,by-2,w*0.08+60,by-2,4);
+    line(c,w*0.08+50,by+4,w*0.08+56,by+4,2);
+    txt(c,'+',w*0.08+40,by+2,12);
+    txt(c,'\u2212',w*0.08+66,by+2,12);
+    txt(c,'Batterie U(E\u2013B) \u2013 dein Regler',w*0.08+150,by+4,12,'#666');
     if(on){
-      var nB=4;
-      for(var k3=0;k3<nB;k3++){
-        var p2=(k3+0.5)/nB;
-        ring(c,w*0.16+(bPinX-w*0.16)*p2,by,3.5,1.5);
+      for(var k2=0;k2<4;k2++){
+        var p2=((t*0.006*2.2)+k2/4)%1;
+        var x2=w*0.08+(bPinX-w*0.08)*p2;
+        ring(c,x2,by,3.5,1.5);
       }
-      txt(c,'Basisstrom: klein (steuert nur)',w*0.34,by-16,11,'#666');
+      txt(c,'I(B): Basisstrom \u2013 klein, steuert nur',w*0.30,by-14,11,'#666');
     }
     document.getElementById('trInfo').textContent=
-      on? U.toFixed(1)+' V > 0,7 V \u2192 LEITET, grosser Kollektorstrom' : (U>0.05? U.toFixed(1)+' V < 0,7 V \u2192 GESPERRT':'GESPERRT');
+      on? U.toFixed(1)+' V > 0,7 V \u2192 leitet (gro\u00dfer I C flie\u00dft)' : (U>0.05? U.toFixed(1)+' V < 0,7 V \u2192 gesperrt (kein IC)' : '0,0 V \u2192 gesperrt');
   }
   anims.trans=draw;
 })();
@@ -1021,50 +1065,63 @@ var gHop=null, gTrail=[];
 /* ---------- 08b Magnete ---------- */
 (function(){
   var cv=document.getElementById('cvMag'), lp=1;
-  var gap=0.5, target=0.5;        // 0 = ganz nah, 1 = weit weg (animiert!)
+  var dEl=document.getElementById('magDist');
+  var innerDist=110, settled=true;
   document.getElementById('magFlip').onclick=function(){lp*=-1};
   function draw(){
     var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     c.clearRect(0,0,w,h);
-    var attract=lp>0;              // linke Innenseite = S, rechte = N -> Anziehung
-    // Zielabstand: Anziehung -> zusammenruecken; Abstossung -> auseinanderdriften
-    target=attract?0.14:0.92;
-    gap+=(target-gap)*0.03;        // sanfte Animation
-    var y=h*0.60, mh=64, mw=140;
+    var attract=lp>0;                    // linke Innenseite = S, rechte = N
+    var targ=+dEl.value;
+    if(Math.abs(innerDist-targ)>1){       // sanft zum Regler-Ziel fahren
+      innerDist+=(targ-innerDist)*0.15;
+    } else innerDist=targ;
+    var y=h*0.62, mh=64, mw=130;
     var mid=w/2;
-    var xLeft=mid-50-mw/2-(0.5-gap)*220;   // Magnete wandern sichtbar!
-    var xRight=mid+50+mw/2+(0.5-gap)*220;
-    // Magnete zeichnen
+    var xLeft=mid-innerDist/2-mw/2;
+    var xRight=mid+innerDist/2+mw/2;
+    // Kraft ~ 1/Abstandsquadrat, skaliert auf 100% bei Abstand 20
+    var F=Math.round(100*Math.pow(20/Math.max(innerDist,20),1.2));
+    // Magnete
     function magnet(x,pole){
       var l=pole>0?'N':'S', r=pole>0?'S':'N';
       c.lineWidth=2; c.strokeStyle='#111';
       c.strokeRect(x-mw/2,y-mh/2,mw,mh);
       line(c,x-1,y-mh/2,x-1,y+mh/2,1);
-      txt(c,l,x-mw/4,y+8,26); txt(c,r,x+mw/4,y+8,26);
+      txt(c,l,x-mw/4,y+8,24); txt(c,r,x+mw/4,y+8,24);
     }
     magnet(xLeft,lp); magnet(xRight,1);
-    // Feldlinien
-    c.globalAlpha=.4;
+    // Feldlinien NUR im Spalt zwischen den Polen (wickeln nie um die Magnete!)
+    c.globalAlpha=.45;
+    var gapHalf=Math.max(6,(xRight-mw/2-(xLeft+mw/2))/2);
     for(var i=-2;i<=2;i++){
-      var off=i*13;
+      var off=i*Math.min(9,gapHalf*0.35);
       c.beginPath();
       c.moveTo(xLeft+mw/2,y+off);
-      c.quadraticCurveTo((xLeft+xRight)/2,y+off*(attract?1.5:3.0),xRight-mw/2,y+off);
+      c.quadraticCurveTo((xLeft+xRight)/2, y+off*(attract?0.6:1.6), xRight-mw/2, y+off);
       c.stroke();
     }
     c.globalAlpha=1;
-    // Kraefte-Pfeile ueber den Magneten (bewegungsrichtung)
-    var dir=attract?1:-1;
-    arrowH(c,xLeft+mw/2+20,y-mh/2-26,dir*40);
-    arrowH(c,xRight-mw/2-20,y-mh/2-26,-dir*40);
-    // Status GROSS + Unterscheidung
+    // Kraftpfeile an den Polen (Laenge = Kraftstaerke)
+    var arrowLen=Math.max(16,Math.min(70,Math.min(mw*0.5,F*0.7)));
+    var arrowY=y-mh/2-22;
+    // Bewegungspfeile UEBER den Magneten: linker bei Anziehung nach RECHTS, rechter nach LINKS
+    arrowH(c,xLeft-arrowLen/2,arrowY, attract? arrowLen : -arrowLen);
+    arrowH(c,xRight-arrowLen/2,arrowY, attract? -arrowLen : arrowLen);
+    txt(c,'Kraft = '+F+' %',mid,y-mh/2-42,14);
+    // Status
     txt(c,attract?'ANZIEHUNG':'ABSTOSSUNG',mid,34,18);
     txt(c, attract?
-      'ungleichnamige Pole (S \u2013 N): das Feld verbindet beide \u2192 die Magnete rutschen aufeinander zu' :
-      'gleichnamige Pole (N \u2013 N): die Feldlinien weichen aus \u2192 die Magnete dr\u00fccken sich weg',
-      mid,h-16,12,'#666');
+      'ungleichnamig (S \u2013 N): gezogen \u2013 je n\u00e4her, desto st\u00e4rker' :
+      'gleichnamig (N \u2013 N): geschoben \u2013 je n\u00e4her, desto st\u00e4rker',
+      mid,h-34,12,'#666');
+    // Kraft-Balken
+    var bx0=w*0.30, bwm=w*0.40;
+    line(c,bx0,h-16,bx0+bwm,h-16,1);
+    line(c,bx0,h-14,bx0+bwm*F/100,h-14,5);
+    txt(c,'Kraft-Anzeige',mid,h-22,10,'#666');
     document.getElementById('magInfo').textContent=
-      attract?'S und N \u2192 die Magnete bewegen sich AUFeinander zu':'N und N \u2192 die Magnete dr\u00fccken sich WEG';
+      (attract?'S\u2013N':'N\u2013N')+' \u00b7 Abstand '+Math.round(innerDist)+' \u00b7 Kraft '+F+' %';
   }
   anims.mag=draw;
 })();
@@ -1173,108 +1230,105 @@ var gHop=null, gTrail=[];
 /* ---------- 10 Motor ---------- */
 (function(){
   var cv=document.getElementById('cvMotor');
-  var ang=0, comm=true, speed=0.6;
-  var lastHalf=0, flash=0, flips=0;
-  var frozenHalf=0;
-  var elX=[];   // Elektronen-Punkte im Kommutator (Richtungswechsel sichtbar)
+  var ang=Math.PI-0.5, comm=true, speed=0.6;   /* Start kurz vor dem Polwechsel: beim Oeffnen gleich sichtbar */
+  var lastHalf=0, flash=0, flips=0, frozenHalf=0;
   var sEl=document.getElementById('motSpeed');
   sEl.oninput=function(){speed=+sEl.value/100};
   document.getElementById('motComm').onclick=function(){
     comm=!comm;
-    if(!comm) frozenHalf=Math.floor(ang/Math.PI);   // Polaritaet EINFRIEREN
+    if(!comm) frozenHalf=Math.floor(ang/Math.PI);
     this.textContent=comm?'Kommutator AUS':'Kommutator AN';
   };
-  function pol(half){ return (Math.floor(half)%2===0)?'S':'N'; }   // Pol am rechten Ende
+  function pol(half){ return (Math.floor(half)%2===0)?'N':'S'; }   /* endA = N, waehrend es zum linken S-Stator schwingt */
   function draw(){
     var f=fit(cv); if(!f)return; var c=f.ctx, w=f.w, h=f.h;
     c.clearRect(0,0,w,h);
-    var cx=w*0.55, cy=h*0.56, R=Math.min(w*0.24,h*0.32);
+    var cx=w*0.55, cy=h*0.56, R=Math.min(w*0.24,h*0.30);
 
-    // Statoren
+    // Statoren: links S, rechts N
     c.lineWidth=1.5; c.strokeStyle='#111';
     c.strokeRect(cx-R-72,cy-44,50,88); txt(c,'S',cx-R-47,cy+8,20);
     c.strokeRect(cx+R+22,cy-44,50,88); txt(c,'N',cx+R+47,cy+8,20);
     txt(c,'Stator',cx-R-47,cy-58,10,'#666'); txt(c,'Stator',cx+R+47,cy-58,10,'#666');
 
-    // ---- Pol-Paritaet bestimmen ----
     var half=Math.floor(ang/Math.PI);
     var rEnd, lEnd;
-    if(comm){ rEnd=pol(half); }              // laeuft: Polwechsel uebernimmt der Kommutator
-    else{ rEnd=pol(frozenHalf); }            // AUS: Polaritaet eingefroren
+    if(comm){ rEnd=pol(half); } else { rEnd=pol(frozenHalf); }
     lEnd=(rEnd==='N')?'S':'N';
 
-    // Polwechsel-Erkennung: GENAU wenn gleiche Pole aufeinandertreffen (halbudrehung, horizontal)
-    if(comm && half!==lastHalf){
-      // genau jetzt: Rotor-Ende zeigt auf einen Stator mit GLEICHEN Pol
-      flash=260; flips++;
-    }
+    if(comm && half!==lastHalf){ flash=280; flips++; }
     lastHalf=half;
 
-    // ---- Rotor zeichnen: Pole haften an den ENDEN (N/S-Schilder tauschen bei Polwechsel!) ----
+    // ---- Rotor: Pole haften an den Enden, wechseln beim Polwechsel ----
     c.save(); c.translate(cx,cy); c.rotate(ang);
     line(c,-R,0,R,0,8);
-    disc(c,R-20,0,14); txtS(c,rEnd,R-20,5,13);       // rechtes Ende: z.B. N
-    disc(c,-R+20,0,14); txtS(c,lEnd,-R+20,5,13);     // linkes Ende: S
+    disc(c,R-20,0,13); txtS(c,rEnd,R-20,5,12);       // rechtes Ende (rotiert mit)
+    disc(c,-R+20,0,13); txtS(c,lEnd,-R+20,5,12);      // linkes Ende
     c.restore();
 
-    // Kommutator mit Trennstrich + Elektronen
-    c.beginPath(); c.arc(cx,cy,30,0,7); c.fillStyle='#fff'; c.fill();
+    // ---- Zugkraft-Pfeile: WOHIN ziehen die Pole? (immer zum Gegenpol!)
+    // rechtes Ende zeigt (bezogen auf horizontal) zum rechten Stator N:
+    // Anziehung, wenn dort S sitzt; sonst Abstossung nach aussen.
+    var rEndX=cx+Math.cos(ang)*(R-20), rEndY=cy+Math.sin(ang)*(R-20);
+    var lEndX=cx-Math.cos(ang)*(R-20), lEndY=cy-Math.sin(ang)*(R-20);
+    function endArrow(x,y,towardRight,pull){
+      // pull = Anziehung (Pfeil zum Stator), sonst Abstossung (Pfeil weg vom Stator)
+      var dir=pull?towardRight: !towardRight;
+      var len=Math.min(56, Math.max(24,(R-20)*0.5));
+      arrowH(c, x+(dir?len/2:-len/2), y, dir?len:-len);
+    }
+    // rechtes Rotor-Ende (mit rEnd): Stator dort = rechts (N)
+    endArrow(rEndX,rEndY,true,  rEnd==='S');     // Anziehung, wenn Gegensatz zu N
+    // linkes Ende: Stator links (S): Anziehung, wenn lEnd=='N'
+    endArrow(lEndX,lEndY,false, lEnd==='N');
+
+    // Kommutator mit rotierendem Trennstrich
+    c.beginPath(); c.arc(cx,cy,32,0,7); c.fillStyle='#fff'; c.fill();
     c.strokeStyle='#111'; c.lineWidth=1.5; c.stroke();
     c.save(); c.translate(cx,cy); c.rotate(ang);
     line(c,0,-25,0,25,4);
     c.restore();
-    // Strom-Richtung im Kommutator: kehrt bei jedem Polwechsel um (sichtbar!)
-    if(flash>0){
-      var dt=performance.now()/140;
-      for(var k=0;k<4;k++){
-        var pp=(((dt+k/4)%1)+1)%1;           // laeuft gleich
-        var aa=pp*2*Math.PI;
-        ring(c,cx+Math.cos(aa)*18,cy+Math.sin(aa)*18,3,1.5);
-      }
-    }
     txt(c,'Kommutator',cx,cy+46,10,'#666');
     line(c,cx-36,cy-30,cx-22,cy-30,4); line(c,cx+22,cy-30,cx+36,cy-30,4);
-    txt(c,'B\u00fcrsten',cx,cy-42,10,'#666');
+    txt(c,'B\u00fcrsten',cx,cy+60,10,'#666');
 
-    // ---- POLEWECHSEL-Banner (lange lesbar, 4+ Sekunden) ----
+    // ---- POLEWECHSEL-Banner (5 Sekunden lesbar) ----
     if(flash>0){
       flash--;
-      var a=Math.min(1,flash/260*3);
+      var a=Math.min(1,flash/280*4);
       c.globalAlpha=Math.min(1,a);
-      // Kasten oben
-      var bw2=Math.min(w*0.74,560), bx2=(w-bw2)/2, by2=14, bh2=64;
+      var bw2=Math.min(w*0.80,600), bx2=(w-bw2)/2, by2=14, bh2=66;
       c.fillStyle='#111'; c.fillRect(bx2,by2,bw2,bh2);
-      txtSap(c,'POLEWECHSEL!',bx2+bw2/2,by2+18,17);
-      txtSap(c,'Der Kommutator polt den Strom im Rotor um: N \u21c4 S',bx2+bw2/2,by2+38,12);
-      txtSap(c,'Vorher standen sich GLEICHE Pole gegen\u00fcber und h\u00e4tten abgesto\u00dfen \u2013 jetzt ziehen sie wieder an \u2192 Dauerdrehung',bx2+bw2/2,by2+55,10);
+      txtSap(c,'POLEWECHSEL \u2013 der Strom im Rotor wurde umgepolt!',bx2+bw2/2,by2+20,15);
+      txtSap(c,'Gegenpol war erreicht: der Nordpol des Rotors sass am S\u00fcdpol des Stators und w\u00fcrde dort HANGENBLEIBEN.',bx2+bw2/2,by2+38,11);
+      txtSap(c,'Der Kommutator dreht N \u21c4 S \u2013 dadurch stossen sich die Pole ab und der Rotor dreht weiter.',bx2+bw2/2,by2+55,11);
       c.globalAlpha=1;
     }
 
-    // ---- Physik ----
+    // ---- Physik: Drehrichtung festlegen (im Uhrzeigersinn von uns gesehen),
+    //      zuerst durch Anziehung getrieben, am Gegenpol umpolen ----
     if(comm){ ang+=0.02+speed*0.05; }
     else{
-      // eingefrorene Polaritaet: Rotor laeuft weich in die Anziehungs-Endstellung und STOPPT
       var k1=Math.round(ang/Math.PI);
       var r1=pol(frozenHalf);
-      // gjort candidate k: endA(=rechtes lokales Ende) zeigt bei geradem k nach RECHTS (Stator N), bei ungeradem nach LINKS (Stator S)
-      var attractAtK1=( (k1%2===0) ? (r1==='S') : (r1==='N') );  // gegenpol zieht an
+      var attractAtK1=((k1%2===0)?(r1==='S'):(r1==='N'));
       if(!attractAtK1) k1+=1;
       var rest=k1*Math.PI;
       var diff=rest-ang;
-      ang+=diff*0.055;
+      ang+=diff*0.06;
       if(Math.abs(diff)<0.001) ang=rest;
     }
-    var settled=!comm && Math.abs(ang-Math.round(ang/Math.PI)*Math.PI)<0.02;
+    var settled=!comm&&Math.abs(ang-Math.round(ang/Math.PI)*Math.PI)<0.02;
 
-    // ---- Statustext ----
+    // Statustext
     var msg;
-    if(comm)      msg='Kommutator AN \u2013 POLEWECHSEL bei jeder halben Umdrehung ('+flips+' bisher): Dadurch dreht der Rotor immer weiter';
-    else if(settled) msg='Kommutator AUS: Gegenpole haben sich gefunden, der Rotor bleibt HIER stecken \u2013 ohne Umpolung keine Weiterdrehung';
-    else          msg='Kommutator AUS: Polarit\u00e4t eingefroren, der Rotor l\u00e4uft gerade in die Anziehungslage aus\u2026';
+    if(comm)      msg='Kommutator AN: bei jedem Gegenpol-Treffen wird umgepolt ('+flips+' Polwechsel bisher) \u2192 Dauerdrehung';
+    else if(settled) msg='Kommutator AUS: der Rotor hat den Gegenpol erreicht und bleibt HIER stecken \u2013 ohne Umpolung keine Weiterdrehung!';
+    else          msg='Kommutator AUS: Polarit\u00e4t eingefroren, der Rotor l\u00e4uft in die Endstellung aus\u2026';
     txt(c,msg,w*0.42,h-10,12, comm?'#111':'#666');
 
     document.getElementById('motInfo').textContent=
-      comm? 'rotiert \u00b7 Polwechsel: '+flips : (settled?'steckt fest \u2013 ohne Polwechsel kein Weiterdrehen':'l\u00e4uft aus\u2026');
+      comm? 'rotiert \u00b7 Polwechsel: '+flips : (settled?'steckt am Gegenpol fest \u2013 ohne Polwechsel kein Weiterdrehen':'l\u00e4uft aus\u2026');
   }
   function txtSap(c,t,x,y,s){ c.fillStyle='#fff'; c.font=(s||12)+'px "Helvetica Neue",Helvetica,Arial,sans-serif'; c.textAlign='center'; c.fillText(t,x,y); }
   anims.motor=draw;
